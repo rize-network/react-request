@@ -1,6 +1,6 @@
 {
   "name": "@app-studio/react-request",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "React Request",
   "main": "./dist/index.js",
   "repository": "git@github.com:rize-network/react-request.git",
