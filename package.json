@@ -1,40 +1,70 @@
 {
-  "name": "@app-studio/react-request",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "React Request",
-  "main": "./dist/index.js",
   "repository": "git@github.com:rize-network/react-request.git",
-  "author": "Steedmonteiro <steed@rize.network>",
   "license": "MIT",
   "bugs": "https://github.com/rize-network/react-request/issues",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "keywords": [
     "react",
-    "typescript"
+    "typescript",
+    "element"
   ],
-  "peerDependencies": {
-    "react": ">= 17.x.x"
+  "files": [
+    "dist",
+    "src"
+  ],
+  "engines": {
+    "node": ">=10"
   },
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test --passWithNoTests",
+    "lint": "npm run eslint && npm run prettier",
+    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
+    "lint-staged": "lint-staged",
+    "lint-staged:eslint": "eslint --ext .js,.jsx,.ts,.tsx ",
+    "eslint:fix": "eslint --fix --cache --ext .js,.jsx,.ts,.tsx --format=codeframe ./src",
+    "eslint": "eslint --cache --ext .js,.jsx,.ts,.tsx --format=codeframe ./src",
+    "prettier:fix": "prettier --write ./src",
+    "prettier": "prettier --check ./src",
+    "prepare": "husky install",
+    "prepublishOnly": "npm run build",
+    "size": "size-limit",
+    "analyze": "size-limit --why",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook",
+    "upgrade": "ncu -u"
+  },
+  "peerDependencies": {
+    "react": ">= 16"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint:fix"
+    }
+  },
+  "name": "@app-studio/react-request",
+  "author": "Steedmonteiro <steed@rize.network>",
+  "module": "dist/react-request.esm.js",
   "devDependencies": {
-    "@babel/cli": "^7.16.8",
-    "@babel/core": "^7.16.7",
-    "@babel/plugin-syntax-flow": "^7.16.7",
-    "@babel/plugin-transform-typescript": "^7.16.7",
-    "@babel/preset-env": "^7.16.7",
-    "@babel/preset-flow": "^7.16.7",
-    "@babel/preset-react": "^7.16.7",
-    "@babel/preset-typescript": "^7.16.7",
-    "@commitlint/cli": "^16.0.1",
+    "@babel/core": "^7.16.10",
+    "@commitlint/cli": "^16.0.3",
     "@commitlint/config-conventional": "^16.0.0",
-    "@types/react": "17.0.38",
+    "@size-limit/preset-small-lib": "^7.0.5",
+    "@storybook/addon-essentials": "^6.4.13",
+    "@storybook/addon-info": "^5.3.21",
+    "@storybook/addon-links": "^6.4.13",
+    "@storybook/addons": "^6.4.13",
+    "@storybook/react": "^6.4.13",
+    "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
+    "@types/styled-components": "^5.1.20",
     "@typescript-eslint/eslint-plugin": "^5.9.0",
     "@typescript-eslint/parser": "^5.9.0",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^27.4.5",
     "babel-loader": "^8.2.3",
-    "babel-plugin-import": "^1.13.3",
-    "babel-plugin-inline-import": "^3.0.0",
-    "babel-plugin-module-resolver": "^4.1.0",
-    "babel-plugin-transform-remove-console": "^6.9.4",
     "chalk": "^5.0.0",
     "commitlint": "^16.0.1",
     "cross-env": "^7.0.3",
@@ -47,26 +77,15 @@
     "eslint-plugin-jest": "^25.3.4",
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^7.0.4",
-    "lint-staged": "^12.1.7",
-    "prettier": "^2.1.2",
-    "rimraf": "^3.0.2",
+    "lint-staged": "^12.2.1",
+    "prettier": "^2.5.1",
+    "react": "^17.0.2",
+    "react-element-to-jsx-string": "^14.3.4",
+    "size-limit": "^7.0.5",
+    "styled-components": "^5.3.3",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.3.1",
     "typescript": "^4.5.4"
-  },
-  "scripts": {
-    "build": "tsc",
-    "validate": "tsc --project tsconfig.json --noEmit",
-    "prepare": "husky install",
-    "clean": "rimraf ./dist",
-    "lint": "npm run eslint && npm run prettier",
-    "lint:fix": "npm run eslint:fix && npm run prettier:fix",
-    "lint-staged": "lint-staged",
-    "lint-staged:eslint": "eslint --ext .js,.jsx,.ts,.tsx ",
-    "eslint:fix": "eslint --fix --cache --ext .js,.jsx,.ts,.tsx --format=codeframe ./src",
-    "eslint": "eslint --cache --ext .js,.jsx,.ts,.tsx --format=codeframe ./src",
-    "prettier:fix": "prettier --write ./src",
-    "prettier": "prettier --check ./src",
-    "prepublishOnly": "npm run clean && npm run build",
-    "upgrade": "ncu -u"
   },
   "lint-staged": {
     "./src/**/*.{md,json}": [
@@ -76,5 +95,18 @@
       "eslint --cache --fix",
       "prettier --write"
     ]
+  },
+  "size-limit": [
+    {
+      "path": "dist/react-request.cjs.production.min.js",
+      "limit": "10 KB"
+    },
+    {
+      "path": "dist/react-request.esm.js",
+      "limit": "10 KB"
+    }
+  ],
+  "dependencies": {
+    "qs": "^6.10.3"
   }
 }

@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import { useRequestContext } from './RequestProvider';
+import { debounce } from './utils/func';
 
 export type UseRequestOption = {
-  onSuccess?: (newData: any) => void;
-  onError?: (newData: any) => void;
+  onSuccess?: (data: any) => void;
+  onError?: (error: Error) => void;
+  onFetch?: (params: any, service: string) => void;
 };
 
 export function useRequest(
   service: any,
-  options = {},
+  options = {}
 ): {
   run: any;
   data: any;
@@ -18,47 +21,49 @@ export function useRequest(
   const [data, setData] = useState(undefined);
   const [params, setParams] = useState({});
   const [loading, setLoading] = useState(false);
+  const provider = useRequestContext();
+
   const [error, setError]: [
-    Error | null | undefined,
-    React.Dispatch<React.SetStateAction<Error | null | undefined>>,
+    Error | undefined,
+    React.Dispatch<React.SetStateAction<Error | undefined>>
   ] = useState();
 
   const {
-    onSuccess = (newData: any) => {
-      console.log('onSuccess', { data: newData, params });
-    },
-    onError = (newError: Error) => {
-      console.error('onError', { error: newError, params });
-    },
+    onSuccess = provider.onSuccess,
+    onError = provider.onError,
+    onFetch = provider.onFetch,
   }: UseRequestOption = options;
 
-  const run = (...args: any) => {
+  const run = debounce((...args: any) => {
     if (loading === false) {
       setLoading(true);
       setParams(args);
-      console.groupCollapsed('call ' + service.name, args);
-      console.groupEnd();
-
+      // console.groupCollapsed('call ' + service.name, args);
+      // console.groupEnd();
+      if (onFetch) onFetch(params, service.name);
       service(...args)
         .then((response: any) => {
           setError(undefined);
           setLoading(false);
-          console.groupCollapsed('response ' + service.name, response);
-          console.groupEnd();
+          // console.groupCollapsed('response ' + service.name, response);
+          // console.groupEnd();
 
           if (response.data && response.data !== undefined) {
             setData(response.data);
-            onSuccess(response.data);
+            if (onSuccess) onSuccess(response.data);
+          } else if (response && response !== undefined) {
+            setData(response);
+            if (onSuccess) onSuccess(response);
           }
         })
         .catch((e: Error) => {
           console.log(service.name);
           setLoading(false);
           setError(e);
-          onError(e);
+          if (onError) onError(e);
         });
     }
-  };
+  }, 1000);
 
   return {
     data,

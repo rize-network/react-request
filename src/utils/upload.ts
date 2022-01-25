@@ -1,4 +1,4 @@
-import { isBrowser } from 'src/utils/env';
+import { isBrowser } from './env';
 
 interface UploadRequestProps {
   url: string;
@@ -18,7 +18,7 @@ export const upload = async ({
   onFailure,
   access_token,
 }: UploadRequestProps) => {
-  let xhr;
+  let xhr: XMLHttpRequest;
   if (isBrowser()) {
     xhr = new XMLHttpRequest();
 
@@ -65,19 +65,19 @@ export const upload = async ({
         }
       }
     };
-  }
 
-  if (access_token) {
-    xhr.open('POST', `${url}?accessToken=${access_token}`, true);
-    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-    xhr.setRequestHeader('Authorization', `Bearer ${access_token}`);
+    if (access_token) {
+      xhr.open('POST', `${url}?accessToken=${access_token}`, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.setRequestHeader('Authorization', `Bearer ${access_token}`);
 
-    const formData = new FormData();
+      const formData = new FormData();
 
-    formData.append('accessToken', access_token);
-    formData.append('file', file);
-    console.log('formData', formData);
+      formData.append('accessToken', access_token);
+      formData.append('file', file);
+      console.log('formData', formData);
 
-    xhr.send(formData);
+      xhr.send(formData);
+    }
   }
 };

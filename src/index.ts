@@ -1,2 +1,5 @@
-export * from 'src/useRequest';
-export * from 'src/useUploadRequest';
+export * from './utils/request';
+export * from './utils/upload';
+export * from './RequestProvider';
+export * from './useRequest';
+export * from './useUploadRequest';

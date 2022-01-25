@@ -1,0 +1,85 @@
+import { stringify } from 'qs';
+
+async function checkStatus(response: any, url: string) {
+  if (response) {
+    const json = await response.json();
+
+    if (response.status >= 200 && response.status < 300) {
+      try {
+        if (json.data !== undefined) {
+          //console.info(`[${url}]`, json.data);
+          return json.data;
+        } else {
+          //console.info(`[${url}]`, json);
+
+          return json;
+        }
+      } catch (e) {
+        console.warn(`${url} =>`, e);
+      }
+    }
+
+    // if (isBrowser()) {
+    //   console.log(`${url} =>`, json);
+    // }
+
+    if (json) {
+      const error = json.message
+        ? new Error(json.message)
+        : new Error(`Erreur ${response.status}`);
+      throw error;
+    }
+  }
+}
+
+// });
+
+/**
+ * apis a URL, returning a promise.
+ *
+ * @param  {string} url       The URL we want to api
+ * @param  {object} [options] The options we want to pass to "fetch"
+ * @return {object}           An object containing either "data" or "err"
+ */
+
+interface RequestProps {
+  url: string;
+  method?: string;
+  params?: any;
+  headers?: any;
+}
+
+export const request = ({
+  url,
+  method = 'GET',
+  params = {},
+  headers = {},
+}: RequestProps) => {
+  let body;
+
+  if (method === 'GET') {
+    const query = stringify(params);
+    url = `${url}?${query}`;
+  } else {
+    body = JSON.stringify(params);
+  }
+
+  if (url.indexOf('http') === -1) {
+    headers.Accept = 'application/json';
+    headers['Content-Type'] = 'application/json';
+
+    if (method !== 'GET') {
+      headers['Cache-Control'] = 'no-cache';
+    }
+  }
+
+  // // if (isBrowser()) {
+  // console.info(`[${method}] ${url} => `, body, headers);
+  // //}
+
+  return fetch(url, {
+    method,
+    headers,
+    body,
+  }).then((response) => checkStatus(response, url));
+};
