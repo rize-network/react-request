@@ -48,10 +48,7 @@ export function useRequest(
           // console.groupCollapsed('response ' + service.name, response);
           // console.groupEnd();
 
-          if (response.data && response.data !== undefined) {
-            setData(response.data);
-            if (onSuccess) onSuccess(response.data);
-          } else if (response && response !== undefined) {
+          if (response && response !== undefined) {
             setData(response);
             if (onSuccess) onSuccess(response);
           }
