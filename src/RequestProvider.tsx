@@ -7,15 +7,17 @@ type RequestConfig = {
   children?: ReactNode;
 };
 export const RequestContext = createContext<RequestConfig>({
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onSuccess: (data: any) => {
-    console.log(data);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onSuccess: (_data: any) => {
+    // console.log(data);
   },
-  onError: (error: Error) => {
-    console.error(error);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onError: (_error: Error) => {
+    // console.error(error);
   },
-  onFetch: (params: any) => {
-    console.log(params);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onFetch: (_params: any) => {
+    // console.log(params);
   },
 });
 
