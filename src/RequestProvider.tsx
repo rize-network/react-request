@@ -5,6 +5,7 @@ type RequestConfig = {
   onError?: (error: Error) => void;
   onFetch?: (params: any) => void;
   children?: ReactNode;
+  successKey?: string;
 };
 export const RequestContext = createContext<RequestConfig>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,6 +29,7 @@ export const RequestProvider = ({
   onError,
   onFetch,
   children,
+  successKey,
 }: RequestConfig): React.ReactElement => {
   return (
     <RequestContext.Provider
@@ -35,6 +37,7 @@ export const RequestProvider = ({
         onSuccess,
         onError,
         onFetch,
+        successKey,
       }}
     >
       {children}

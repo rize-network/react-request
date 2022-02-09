@@ -49,8 +49,16 @@ export function useRequest(
           // console.groupEnd();
 
           if (response && response !== undefined) {
-            setData(response);
-            if (onSuccess) onSuccess(response);
+            if (
+              provider.successKey &&
+              response[provider.successKey] !== undefined
+            ) {
+              setData(response[provider.successKey]);
+              if (onSuccess) onSuccess(response[provider.successKey]);
+            } else {
+              setData(response);
+              if (onSuccess) onSuccess(response);
+            }
           }
         })
         .catch((e: Error) => {
