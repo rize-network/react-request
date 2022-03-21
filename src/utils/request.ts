@@ -2,9 +2,13 @@ import { stringify } from 'qs';
 
 async function checkStatus(response: any, url: string) {
   if (response) {
+    const status =
+      response.info !== undefined && typeof response.info == 'function'
+        ? response.info().status
+        : response.status;
     const json = await response.json();
 
-    if (response.status >= 200 && response.status < 300) {
+    if (status >= 200 && status < 300) {
       try {
         if (json.data !== undefined) {
           //console.info(`[${url}]`, json.data);
