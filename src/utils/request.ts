@@ -1,6 +1,6 @@
 import { stringify } from 'qs';
 
-async function checkStatus(response: any, url: string) {
+export async function checkStatus(response: any, url: string) {
   if (response) {
     const status =
       response.info !== undefined && typeof response.info == 'function'
@@ -64,15 +64,18 @@ export const request = ({
   if (method === 'GET') {
     const query = stringify(params);
     url = `${url}?${query}`;
-  } else {
+  } else if (typeof params === 'object') {
     body = JSON.stringify(params);
+  } else {
+    body = params;
   }
 
   if (url.indexOf('http') === -1) {
-    headers.Accept = 'application/json';
-    headers['Content-Type'] = 'application/json';
+    if (headers.Accept == undefined) headers.Accept = 'application/json';
+    if (headers['Content-Type'] == undefined)
+      headers['Content-Type'] = 'application/json';
 
-    if (method !== 'GET') {
+    if (method !== 'GET' && headers['Cache-Control'] == undefined) {
       headers['Cache-Control'] = 'no-cache';
     }
   }
