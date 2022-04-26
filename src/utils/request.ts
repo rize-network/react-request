@@ -51,6 +51,8 @@ interface RequestProps {
   method?: string;
   params?: any;
   headers?: any;
+  json?: boolean;
+  cacheControl?: boolean;
 }
 
 export const request = ({
@@ -58,24 +60,31 @@ export const request = ({
   method = 'GET',
   params = {},
   headers = {},
+  json = true,
+  cacheControl = true,
 }: RequestProps) => {
   let body;
 
   if (method === 'GET') {
     const query = stringify(params);
     url = `${url}?${query}`;
-  } else if (typeof params === 'object') {
+  } else if (json) {
     body = JSON.stringify(params);
   } else {
     body = params;
   }
 
   if (url.indexOf('http') === -1) {
-    if (headers.Accept == undefined) headers.Accept = 'application/json';
-    if (headers['Content-Type'] == undefined)
+    if (json && headers.Accept == undefined)
+      headers.Accept = 'application/json';
+    if (json && headers['Content-Type'] == undefined)
       headers['Content-Type'] = 'application/json';
 
-    if (method !== 'GET' && headers['Cache-Control'] == undefined) {
+    if (
+      cacheControl &&
+      method !== 'GET' &&
+      headers['Cache-Control'] == undefined
+    ) {
       headers['Cache-Control'] = 'no-cache';
     }
   }
