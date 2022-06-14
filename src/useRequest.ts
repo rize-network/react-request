@@ -43,7 +43,7 @@ export function useRequest(
   const run = debounce((...args: any) => {
     if (loading === false) {
       setLoading(true);
-      if (cached && provider.getCache) {
+      if (cached && data === undefined && provider.getCache) {
         const key = service.name + JSON.stringify(args);
         const cachedData = provider.getCache(key);
         if (cachedData) {
