@@ -38,6 +38,7 @@ export const RequestProvider = ({
   onFetch,
   children,
   successKey,
+  cached,
   ttl = 10 * 60 * 1000
 }: RequestConfig): React.ReactElement => {
 
@@ -55,7 +56,8 @@ export const RequestProvider = ({
        getCache:(key:string) =>{
           return cache.get(key);
         },
-        ttl
+        ttl,
+        cached,
       }}
     >
       {children}
