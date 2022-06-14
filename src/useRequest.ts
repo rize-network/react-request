@@ -75,13 +75,15 @@ export function useRequest(
                 if (provider.setCache) {
                   const key = service.name + JSON.stringify(args);
 
-                  provider.setCache(key, response[provider.successKey]);
-                  if (debug)
-                    console.log(
-                      'write cache',
-                      key,
-                      response[provider.successKey]
-                    );
+                  if (cached) {
+                    provider.setCache(key, response[provider.successKey]);
+                    if (debug)
+                      console.log(
+                        'write cache',
+                        key,
+                        response[provider.successKey]
+                      );
+                  }
                 }
               }
             } else {
@@ -91,8 +93,10 @@ export function useRequest(
                 if (provider.setCache) {
                   const key = service.name + JSON.stringify(args);
 
-                  provider.setCache(key, response);
-                  if (debug) console.log('write cache', key, response);
+                  if (cached) {
+                    provider.setCache(key, response);
+                    if (debug) console.log('write cache', key, response);
+                  }
                 }
               }
             }
