@@ -49,6 +49,7 @@ export function useRequest(
         if (cachedData) {
           if (debug) console.log('read cache', key, cachedData);
           setData(cachedData);
+          setLoading(false);
         }
       }
       setParams(args);
