@@ -42,6 +42,7 @@ export const RequestProvider = ({
   successKey,
   ttl = 10 * 60 * 1000,
   debug = false,
+  cached = false,
 }: RequestConfig): React.ReactElement => {
   return (
     <RequestContext.Provider
@@ -50,11 +51,7 @@ export const RequestProvider = ({
         onError,
         onFetch,
         successKey,
-        setCache: (
-          key: string,
-          data: any,
-          defaultTll: number = 10 * 60 * 1000
-        ) => {
+        setCache: (key: string, data: any, defaultTll: number = ttl) => {
           return cache.put(key, data, defaultTll);
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -63,6 +60,7 @@ export const RequestProvider = ({
         },
         ttl,
         debug,
+        cached,
       }}
     >
       {children}
