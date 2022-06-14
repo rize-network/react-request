@@ -7,6 +7,7 @@ export type UseRequestOption = {
   onError?: (error: Error) => void;
   onFetch?: (params: any, service: string) => void;
   cached?: boolean;
+  debug?: boolean;
 };
 
 export function useRequest(
@@ -35,6 +36,7 @@ export function useRequest(
     onError = provider.onError,
     onFetch = provider.onFetch,
     cached = provider.cached,
+    debug = provider.debug,
   }: UseRequestOption = options;
 
   const run = debounce((...args: any) => {
@@ -45,19 +47,20 @@ export function useRequest(
         const key = service.name + JSON.stringify(args);
         const cachedData = provider.getCache(key);
         if (cachedData) {
-          console.log('read cache', key, cachedData);
+          if (debug) console.log('read cache', key, cachedData);
           setData(cachedData);
         }
       }
-      // console.groupCollapsed('call ' + service.name, args);
-      // console.groupEnd();
+      if (debug) console.groupCollapsed('call ' + service.name, args);
+      if (debug) console.groupEnd();
       if (onFetch) onFetch(params, service.name);
       service(...args)
         .then((response: any) => {
           setError(undefined);
           setLoading(false);
-          // console.groupCollapsed('response ' + service.name, response);
-          // console.groupEnd();
+          if (debug)
+            console.groupCollapsed('response ' + service.name, response);
+          if (debug) console.groupEnd();
 
           if (response && response !== undefined) {
             if (
@@ -71,11 +74,12 @@ export function useRequest(
                   const key = service.name + JSON.stringify(args);
 
                   provider.setCache(key, response[provider.successKey]);
-                  console.log(
-                    'write cache',
-                    key,
-                    response[provider.successKey]
-                  );
+                  if (debug)
+                    console.log(
+                      'write cache',
+                      key,
+                      response[provider.successKey]
+                    );
                 }
               }
             } else {
@@ -86,17 +90,17 @@ export function useRequest(
                   const key = service.name + JSON.stringify(args);
 
                   provider.setCache(key, response);
-                  console.log('write cache', key, response);
+                  if (debug) console.log('write cache', key, response);
                 }
               }
             }
           }
         })
         .catch((e: Error) => {
-          console.log(service.name);
           setLoading(false);
           setError(e);
           if (onError) onError(e);
+          if (debug) console.log(service.name, e);
         });
     }
   }, 1000);

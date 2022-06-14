@@ -11,6 +11,7 @@ type RequestConfig = {
   setCache?: (key: string, data: any) => void;
   ttl?: number;
   cached?: boolean;
+  debug?: boolean;
 };
 export const RequestContext = createContext<RequestConfig>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,6 +29,7 @@ export const RequestContext = createContext<RequestConfig>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ttl: 10 * 60 * 1000,
   cached: false,
+  debug: false,
 });
 
 export const useRequestContext = () => useContext(RequestContext);
@@ -39,6 +41,7 @@ export const RequestProvider = ({
   children,
   successKey,
   ttl = 10 * 60 * 1000,
+  debug = false,
 }: RequestConfig): React.ReactElement => {
   return (
     <RequestContext.Provider
@@ -59,6 +62,7 @@ export const RequestProvider = ({
           return cache.get(key);
         },
         ttl,
+        debug,
       }}
     >
       {children}
