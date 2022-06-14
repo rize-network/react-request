@@ -20,6 +20,7 @@ export function useRequest(
   error?: Error;
   params?: any;
   cached?: boolean;
+  debug?: boolean;
 } {
   const [data, setData] = useState(undefined);
   const [params, setParams] = useState({});
@@ -42,7 +43,6 @@ export function useRequest(
   const run = debounce((...args: any) => {
     if (loading === false) {
       setLoading(true);
-      setParams(args);
       if (cached && provider.getCache) {
         const key = service.name + JSON.stringify(args);
         const cachedData = provider.getCache(key);
@@ -51,9 +51,11 @@ export function useRequest(
           setData(cachedData);
         }
       }
+      setParams(args);
+
       if (debug) console.groupCollapsed('call ' + service.name, args);
       if (debug) console.groupEnd();
-      if (onFetch) onFetch(params, service.name);
+      if (onFetch) onFetch(args, service.name);
       service(...args)
         .then((response: any) => {
           setError(undefined);
