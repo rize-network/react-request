@@ -1,5 +1,5 @@
 {
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "React Request",
   "repository": "git@github.com:rize-network/react-request.git",
   "license": "MIT",
@@ -31,7 +31,6 @@
     "prettier:fix": "prettier --write ./src",
     "prettier": "prettier --check ./src",
     "prepare": "husky install",
-    "prepublishOnly": "npm run build",
     "size": "size-limit",
     "analyze": "size-limit --why",
     "storybook": "start-storybook -p 6006",
@@ -59,6 +58,7 @@
     "@storybook/addon-links": "^6.4.13",
     "@storybook/addons": "^6.4.13",
     "@storybook/react": "^6.4.13",
+    "@types/memory-cache": "^0.2.2",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
     "@types/styled-components": "^5.1.20",
@@ -107,6 +107,7 @@
     }
   ],
   "dependencies": {
-    "qs": "^6.10.3"
+    "qs": "^6.10.3",
+    "memory-cache": "^0.2.0"
   }
 }

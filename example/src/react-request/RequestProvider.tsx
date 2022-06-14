@@ -8,7 +8,7 @@ type RequestConfig = {
   children?: ReactNode;
   successKey?: string;
   getCache?: (key: string) => any;
-  setCache?: (key: string, data: any) => void;
+  setCache?: (key: string, data:any) => void;
   ttl?: number;
   cached?: boolean;
 };
@@ -25,9 +25,9 @@ export const RequestContext = createContext<RequestConfig>({
   onFetch: (_params: any) => {
     // console.log(params);
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  ttl: 10 * 60 * 1000,
-  cached: false,
+ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  ttl:10 * 60 * 1000,
+  cached: false
 });
 
 export const useRequestContext = () => useContext(RequestContext);
@@ -38,27 +38,24 @@ export const RequestProvider = ({
   onFetch,
   children,
   successKey,
-  ttl = 10 * 60 * 1000,
+  ttl = 10 * 60 * 1000
 }: RequestConfig): React.ReactElement => {
-  return (
+
+    return (
     <RequestContext.Provider
       value={{
         onSuccess,
         onError,
         onFetch,
         successKey,
-        setCache: (
-          key: string,
-          data: any,
-          defaultTll: number = 10 * 60 * 1000
-        ) => {
-          return cache.put(key, data, defaultTll);
+        setCache:(key:string,data:any, defaultTll:number= 10 * 60 * 1000) =>{
+          return cache.put(key, data,defaultTll);
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        getCache: (key: string) => {
+       getCache:(key:string) =>{
           return cache.get(key);
         },
-        ttl,
+        ttl
       }}
     >
       {children}

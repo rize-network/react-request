@@ -29,12 +29,9 @@
 
 ## ✨ Features
 
-<!-- - 🌈 Enterprise-class UI designed for web applications.
-- 📦 A set of high-quality React components out of the box.
+<!-- - Transform your data request in hooks.
 - 🛡 Written in TypeScript with predictable static types.
-- ⚙️ Whole package of design resources and development tools.
-- 🌍 Internationalization support for dozens of languages.
-- 🎨 Powerful theme customization in every detail. -->
+-->
 
 
 
@@ -47,9 +44,30 @@ npm install react-request --save
 ## 🔨 Usage
 
 ```jsx
-import MyComponent from "react-request";
+import {useRequest, UseRequestOption} from "react-request";
 
-<MyComponent />
+export const postDataRequest = (
+  requestBody?: DataBody,
+): Promise<Data> => {
+  return  await fetch({
+    method: 'POST',
+    path: `/api/data`,
+    body: requestBody,
+  });
+};
+
+export const usePostDataService = (
+  options: UseRequestOption = {},
+): {
+  run: (requestBody?: DataBody) => void;
+  data: any;
+  loading: boolean;
+  error?: Error;
+  params?: any;
+} => {
+  return useRequest(postDataRequest, options);
+};
+
 ```
 
 ### TypeScript
