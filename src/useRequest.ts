@@ -41,13 +41,12 @@ export function useRequest(
     if (loading === false) {
       setLoading(true);
       setParams(args);
-      if (cached && data === undefined && provider.getCache) {
+      if (cached && provider.getCache) {
         const key = service.name + JSON.stringify(args);
         const cachedData = provider.getCache(key);
         if (cachedData) {
           console.log('read cache', key, cachedData);
           setData(cachedData);
-          setLoading(false);
         }
       }
       // console.groupCollapsed('call ' + service.name, args);
