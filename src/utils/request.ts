@@ -6,34 +6,40 @@ export async function checkStatus(response: any, url: string) {
       response.info !== undefined && typeof response.info == 'function'
         ? response.info().status
         : response.status;
-    const json = await response.json();
 
-    if (status >= 200 && status < 300) {
-      try {
-        if (json.data !== undefined) {
-          //console.info(`[${url}]`, json.data);
-          return json.data;
-        } else {
-          //console.info(`[${url}]`, json);
-
-          return json;
-        }
-      } catch (e) {
-        console.warn(`${url} =>`, e);
+    let json;
+    try {
+      json = await response.json();
+    } catch (e) {
+      console.warn(`${url} =>`, e);
+      if (status >= 200 && status < 300) {
+        return response;
+      } else {
+        throw new Error(`Erreur ${response.status}`);
       }
     }
 
-    // if (isBrowser()) {
-    //   console.log(`${url} =>`, json);
-    // }
-
     if (json) {
-      const error = json.message
-        ? new Error(json.message)
-        : new Error(`Erreur ${response.status}`);
-      throw error;
+      if (status >= 200 && status < 300) {
+        return json;
+      } else {
+        let error = new Error(`Erreur ${response.status}`);
+        if (json.message) {
+          error = new Error(json.message);
+        }
+
+        throw error;
+      }
     }
+
+    //console.info(`[${url}]`, json);
+
+    return response;
   }
+
+  // if (isBrowser()) {
+  //   console.log(`${url} =>`, json);
+  // }
 }
 
 // });
