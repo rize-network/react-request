@@ -65,39 +65,39 @@ export function useRequest(
             console.groupCollapsed('response ' + service.name, response);
           if (debug) console.groupEnd();
 
-          if (response && response !== undefined) {
-            if (
-              provider.successKey &&
-              response[provider.successKey] !== undefined
-            ) {
-              setData(response[provider.successKey]);
-              if (onSuccess) onSuccess(response[provider.successKey]);
-              if (response[provider.successKey] && provider) {
-                if (provider.setCache) {
-                  const key = service.name + JSON.stringify(args);
+          if (
+            response &&
+            response !== undefined &&
+            provider.successKey &&
+            response[provider.successKey] !== undefined
+          ) {
+            setData(response[provider.successKey]);
+            if (onSuccess) onSuccess(response[provider.successKey]);
+            if (response[provider.successKey] && provider) {
+              if (provider.setCache) {
+                const key = service.name + JSON.stringify(args);
 
-                  if (cached) {
-                    provider.setCache(key, response[provider.successKey]);
-                    if (debug)
-                      console.log(
-                        'write cache',
-                        key,
-                        response[provider.successKey]
-                      );
-                  }
+                if (cached) {
+                  provider.setCache(key, response[provider.successKey]);
+                  if (debug)
+                    console.log(
+                      'write cache',
+                      key,
+                      response[provider.successKey]
+                    );
                 }
               }
-            } else {
-              setData(response);
-              if (onSuccess) onSuccess(response);
-              if (response && provider) {
-                if (provider.setCache) {
-                  const key = service.name + JSON.stringify(args);
+            }
+          } else {
+            setData(response);
+            if (onSuccess) onSuccess(response);
+            if (response && provider) {
+              if (provider.setCache) {
+                const key = service.name + JSON.stringify(args);
 
-                  if (cached) {
-                    provider.setCache(key, response);
-                    if (debug) console.log('write cache', key, response);
-                  }
+                if (cached) {
+                  provider.setCache(key, response);
+                  if (debug) console.log('write cache', key, response);
                 }
               }
             }
