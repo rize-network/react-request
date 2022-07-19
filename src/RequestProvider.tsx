@@ -8,6 +8,8 @@ type RequestConfig = {
   children?: ReactNode;
   successKey?: string;
   getCache?: (key: string) => any;
+  removeCache?: (key: string) => any;
+  resetCache?: () => void;
   setCache?: (key: string, data: any) => void;
   ttl?: number;
   cached?: boolean;
@@ -53,6 +55,12 @@ export const RequestProvider = ({
         successKey,
         setCache: (key: string, data: any, defaultTll: number = ttl) => {
           return cache.put(key, data, defaultTll);
+        },
+        removeCache: (key: string) => {
+          return cache.del(key);
+        },
+        resetCache: () => {
+          return cache.clear();
         },
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         getCache: (key: string) => {

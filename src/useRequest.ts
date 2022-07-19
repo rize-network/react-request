@@ -15,6 +15,7 @@ export function useRequest(
   options = {}
 ): {
   run: any;
+  clear: () => any;
   data: any;
   loading: boolean;
   error?: Error;
@@ -112,9 +113,18 @@ export function useRequest(
     }
   }, 1000);
 
+  const clear = () => {
+    if (cached && provider.removeCache) {
+      const key = service.name + JSON.stringify(params);
+      provider.removeCache(key);
+    }
+    setData(undefined);
+  };
+
   return {
     data,
     run,
+    clear,
     loading,
     error,
     params,
