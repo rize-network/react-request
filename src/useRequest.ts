@@ -15,7 +15,7 @@ export function useRequest(
   options = {}
 ): {
   run: any;
-  clear: () => any;
+  clear: any;
   data: any;
   loading: boolean;
   error?: Error;
