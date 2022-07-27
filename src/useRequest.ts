@@ -3,8 +3,8 @@ import { useRequestContext } from './RequestProvider';
 import { debounce } from './utils/func';
 
 export type UseRequestOption = {
-  onSuccess?: (data: any) => void;
-  onError?: (error: Error) => void;
+  onSuccess?: (data: any, params: any) => void;
+  onError?: (error: Error, params: any) => void;
   onFetch?: (params: any, service: string) => void;
   cached?: boolean;
   debug?: boolean;
@@ -73,7 +73,7 @@ export function useRequest(
             response[provider.successKey] !== undefined
           ) {
             setData(response[provider.successKey]);
-            if (onSuccess) onSuccess(response[provider.successKey]);
+            if (onSuccess) onSuccess(response[provider.successKey], args);
             if (response[provider.successKey] && provider) {
               if (provider.setCache) {
                 const key = service.name + JSON.stringify(args);
@@ -91,7 +91,7 @@ export function useRequest(
             }
           } else {
             setData(response);
-            if (onSuccess) onSuccess(response);
+            if (onSuccess) onSuccess(response, args);
             if (response && provider) {
               if (provider.setCache) {
                 const key = service.name + JSON.stringify(args);
@@ -107,7 +107,7 @@ export function useRequest(
         .catch((e: Error) => {
           setLoading(false);
           setError(e);
-          if (onError) onError(e);
+          if (onError) onError(e, args);
           if (debug) console.log(service.name, e);
         });
     }

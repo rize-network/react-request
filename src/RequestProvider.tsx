@@ -2,8 +2,8 @@ import React, { ReactNode, createContext, useContext } from 'react';
 import cache from 'memory-cache';
 
 type RequestConfig = {
-  onSuccess?: (data: any) => void;
-  onError?: (error: Error) => void;
+  onSuccess?: (data: any, params: any) => void;
+  onError?: (error: Error, params: any) => void;
   onFetch?: (params: any) => void;
   children?: ReactNode;
   successKey?: string;
@@ -17,11 +17,11 @@ type RequestConfig = {
 };
 export const RequestContext = createContext<RequestConfig>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onSuccess: (_data: any) => {
+  onSuccess: (_data: any, params: any) => {
     // console.log(data);
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onError: (_error: Error) => {
+  onError: (_error: Error, params: any) => {
     // console.error(error);
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
