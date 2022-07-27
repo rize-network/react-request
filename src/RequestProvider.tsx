@@ -17,11 +17,12 @@ type RequestConfig = {
 };
 export const RequestContext = createContext<RequestConfig>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onSuccess: (_data: any, params: any) => {
+  onSuccess: (_data: any, _params: any) => {
     // console.log(data);
+    // console.log(params);
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onError: (_error: Error, params: any) => {
+  onError: (_error: Error, _params: any) => {
     // console.error(error);
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
