@@ -30,7 +30,7 @@ export function useRequest(
   clear: any;
   data: any;
   loading: boolean;
-  loader: boolean;
+  loader?: boolean;
   error?: Error;
   params?: any;
   cached?: boolean;
@@ -39,10 +39,10 @@ export function useRequest(
   const [data, setData] = useState(undefined);
   const [params, setParams] = useState({});
   const [loading, setLoading] = useState(false);
-  const [loader, setLoader] = useState(false);
   const [online, setOnline] = useState(true);
 
   const provider = useRequestContext();
+  const [loader, setLoader]: [boolean | undefined, Function] = useState();
 
   const [error, setError]: [
     Error | undefined,
@@ -149,7 +149,7 @@ export function useRequest(
   }, [provider.onlineStatus]);
   useEffect(() => {
     if (online === true) {
-      if (onOnline) {
+      if (onOnline && loader !== undefined) {
         onOnline(run, params, service.name, setData);
       }
     } else if (online === false) {
