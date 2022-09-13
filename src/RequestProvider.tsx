@@ -60,7 +60,7 @@ export const RequestProvider = ({
   successKey,
   ttl = 10 * 60 * 1000,
   debug = false,
-  onlineStatus = navigator?.onLine,
+  onlineStatus,
   cached = false,
 }: RequestConfig): React.ReactElement => {
   return (

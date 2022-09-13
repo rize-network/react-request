@@ -36,12 +36,12 @@ export function useRequest(
   cached?: boolean;
   debug?: boolean;
 } {
+  const provider = useRequestContext();
   const [data, setData] = useState(undefined);
-  const [params, setParams] = useState({});
+  const [params, setParams] = useState([]);
   const [loading, setLoading] = useState(false);
   const [online, setOnline] = useState(true);
 
-  const provider = useRequestContext();
   const [loader, setLoader]: [boolean | undefined, Function] = useState();
 
   const [error, setError]: [
