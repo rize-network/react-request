@@ -5,8 +5,18 @@ type RequestConfig = {
   onSuccess?: (data: any, params: any) => void;
   onError?: (error: Error, params: any) => void;
   onFetch?: (params: any) => void;
-  onOnline?: (run: Function, params: any, setData?: Function) => void;
-  onOffline?: (run: Function, params: any, setData?: Function) => void;
+  onOnline?: (
+    run: Function,
+    params: any,
+    name: string,
+    setData: Function
+  ) => void;
+  onOffline?: (
+    run: Function,
+    params: any,
+    name: string,
+    setData: Function
+  ) => void;
   children?: ReactNode;
   successKey?: string;
   getCache?: (key: string) => any;

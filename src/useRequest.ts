@@ -6,8 +6,18 @@ export type UseRequestOption = {
   onSuccess?: (data: any, params: any) => void;
   onError?: (error: Error, params: any) => void;
   onFetch?: (params: any, service: string) => void;
-  onOnline?: (run: Function, params: any, setData?: Function) => void;
-  onOffline?: (run: Function, params: any, setData?: Function) => void;
+  onOnline?: (
+    run: Function,
+    params: any,
+    name: string,
+    setData: Function
+  ) => void;
+  onOffline?: (
+    run: Function,
+    params: any,
+    name: string,
+    setData: Function
+  ) => void;
   cached?: boolean;
   debug?: boolean;
 };
@@ -20,6 +30,7 @@ export function useRequest(
   clear: any;
   data: any;
   loading: boolean;
+  loader: boolean;
   error?: Error;
   params?: any;
   cached?: boolean;
@@ -28,6 +39,9 @@ export function useRequest(
   const [data, setData] = useState(undefined);
   const [params, setParams] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loader, setLoader] = useState(false);
+  const [online, setOnline] = useState(true);
+
   const provider = useRequestContext();
 
   const [error, setError]: [
@@ -48,6 +62,7 @@ export function useRequest(
   const run: any = debounce((...args: any) => {
     if (loading === false) {
       setLoading(true);
+      if (data === undefined) setLoader(true);
       if (cached && data === undefined && provider.getCache) {
         const key = service.name + JSON.stringify(args);
         const cachedData = provider.getCache(key);
@@ -55,6 +70,7 @@ export function useRequest(
           if (debug) console.log('read cache', key, cachedData);
           setData(cachedData);
           setLoading(false);
+          setLoader(false);
         }
       }
       setParams(args);
@@ -62,11 +78,13 @@ export function useRequest(
       if (debug) console.groupCollapsed('call ' + service.name, args);
       if (debug) console.groupEnd();
       if (onFetch) onFetch(args, service.name);
-      if (provider.onlineStatus === undefined || provider.onlineStatus) {
+      if (online) {
         service(...args)
           .then((response: any) => {
             setError(undefined);
             setLoading(false);
+            setLoader(false);
+
             if (debug)
               console.groupCollapsed('response ' + service.name, response);
             if (debug) console.groupEnd();
@@ -96,6 +114,7 @@ export function useRequest(
               }
             } else {
               setData(response);
+
               if (onSuccess) onSuccess(response, args);
               if (response && provider) {
                 if (provider.setCache) {
@@ -113,6 +132,7 @@ export function useRequest(
             if (debug) console.log(service.name, e);
             setLoading(false);
             setError(e);
+            setLoader(false);
             if (onError) onError(e, args);
           });
       }
@@ -120,19 +140,27 @@ export function useRequest(
   }, 1000);
 
   useEffect(() => {
-    if (provider.onlineStatus === true) {
-      if (onOnline) {
-        onOnline(run, params, setData);
-      }
-    } else if (provider.onlineStatus === false) {
-      setError(undefined);
-      setLoading(false);
-
-      if (onOffline) {
-        onOffline(run, params, setData);
-      }
+    if (
+      provider.onlineStatus !== online &&
+      typeof provider.onlineStatus === 'boolean'
+    ) {
+      setOnline(provider.onlineStatus);
     }
   }, [provider.onlineStatus]);
+  useEffect(() => {
+    if (online === true) {
+      if (onOnline) {
+        onOnline(run, params, service.name, setData);
+      }
+    } else if (online === false) {
+      setError(undefined);
+      setLoading(false);
+      setLoader(false);
+      if (onOffline) {
+        onOffline(run, params, service.name, setData);
+      }
+    }
+  }, [online]);
 
   const clear = () => {
     if (cached && provider.removeCache) {
@@ -149,5 +177,6 @@ export function useRequest(
     loading,
     error,
     params,
+    loader,
   };
 }
