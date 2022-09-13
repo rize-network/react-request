@@ -5,6 +5,8 @@ type RequestConfig = {
   onSuccess?: (data: any, params: any) => void;
   onError?: (error: Error, params: any) => void;
   onFetch?: (params: any) => void;
+  onOnline?: (run: Function, params: any, setData?: Function) => void;
+  onOffline?: (run: Function, params: any, setData?: Function) => void;
   children?: ReactNode;
   successKey?: string;
   getCache?: (key: string) => any;
@@ -14,6 +16,7 @@ type RequestConfig = {
   ttl?: number;
   cached?: boolean;
   debug?: boolean;
+  onlineStatus?: boolean;
 };
 export const RequestContext = createContext<RequestConfig>({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -41,10 +44,13 @@ export const RequestProvider = ({
   onSuccess,
   onError,
   onFetch,
+  onOnline,
+  onOffline,
   children,
   successKey,
   ttl = 10 * 60 * 1000,
   debug = false,
+  onlineStatus = navigator?.onLine,
   cached = false,
 }: RequestConfig): React.ReactElement => {
   return (
@@ -53,6 +59,8 @@ export const RequestProvider = ({
         onSuccess,
         onError,
         onFetch,
+        onOnline,
+        onOffline,
         successKey,
         setCache: (key: string, data: any, defaultTll: number = ttl) => {
           return cache.put(key, data, defaultTll);
@@ -69,6 +77,7 @@ export const RequestProvider = ({
         },
         ttl,
         debug,
+        onlineStatus,
         cached,
       }}
     >
