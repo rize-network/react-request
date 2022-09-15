@@ -1,25 +1,94 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useEffect, useState } from 'react';
 import { useRequestContext } from './RequestProvider';
 import { debounce } from './utils/func';
 
 export type UseRequestOption = {
-  onSuccess?: (data: any, params: any) => void;
-  onError?: (error: Error, params: any) => void;
-  onFetch?: (params: any, service: string) => void;
+  onSuccess?: (
+    data: any,
+    params: any,
+    name: string,
+    method: HttpMethod
+  ) => void;
+  onError?: (
+    error: Error,
+    params: any,
+    name: string,
+    method: HttpMethod
+  ) => void;
+  onFetch?: (params: any, name: string, method: HttpMethod) => void;
   onOnline?: (
     run: Function,
     params: any,
     name: string,
+    method: HttpMethod,
     setData: Function
   ) => void;
   onOffline?: (
     run: Function,
     params: any,
     name: string,
+    method: HttpMethod,
+    setData: Function
+  ) => void;
+  onAppStatusChange?: (
+    status: string,
+    run: Function,
+    params: any,
+    name: string,
+    method: HttpMethod,
     setData: Function
   ) => void;
   cached?: boolean;
   debug?: boolean;
+  method?: HttpMethod;
+};
+
+export type HttpMethod =
+  | 'GET'
+  | 'PUT'
+  | 'POST'
+  | 'DELETE'
+  | 'OPTIONS'
+  | 'HEAD'
+  | 'PATCH';
+
+export type UseOnEveryOptions = {
+  onEverySuccess?: (
+    data: any,
+    params: any,
+    name: string,
+    method: HttpMethod
+  ) => void;
+  onEveryError?: (
+    error: Error,
+    params: any,
+    name: string,
+    method: HttpMethod
+  ) => void;
+  onEveryFetch?: (params: any, name: string, method: HttpMethod) => void;
+  onEveryOnline?: (
+    run: Function,
+    params: any,
+    name: string,
+    method: HttpMethod,
+    setData: Function
+  ) => void;
+  onEveryOffline?: (
+    run: Function,
+    params: any,
+    name: string,
+    method: HttpMethod,
+    setData: Function
+  ) => void;
+  onEveryAppStatusChange?: (
+    run: Function,
+    params: any,
+    name: string,
+    method: HttpMethod,
+    setData: Function
+  ) => void;
 };
 
 export function useRequest(
@@ -31,6 +100,7 @@ export function useRequest(
   data: any;
   loading: boolean;
   loader?: boolean;
+  method?: HttpMethod;
   error?: Error;
   params?: any;
   cached?: boolean;
@@ -41,6 +111,8 @@ export function useRequest(
   const [params, setParams] = useState([]);
   const [loading, setLoading] = useState(false);
   const [online, setOnline] = useState(true);
+  const [status, setAppStatus]: [string | undefined, Function] =
+    useState('active');
 
   const [loader, setLoader]: [boolean | undefined, Function] = useState();
 
@@ -50,14 +122,80 @@ export function useRequest(
   ] = useState();
 
   const {
-    onSuccess = provider.onSuccess,
-    onError = provider.onError,
-    onFetch = provider.onFetch,
-    onOffline = provider.onOffline,
-    onOnline = provider.onOnline,
+    onSuccess = provider.defaults?.onSuccess,
+    onError = provider.defaults?.onError,
+    onFetch = provider.defaults?.onFetch,
+    onOffline = provider.defaults?.onOffline,
+    onOnline = provider.defaults?.onOnline,
+    onAppStatusChange = provider.defaults?.onAppStatusChange,
     cached = provider.cached,
     debug = provider.debug,
+    method = 'GET',
   }: UseRequestOption = options;
+
+  const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onSuccess: onEverySuccess = (
+      _data: any,
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onError: onEveryError = (
+      _error: Error,
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onFetch: onEveryFetch = (
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onOffline: onEveryOffline = (
+      _run: Function,
+      _params: any,
+      _name: string,
+      _method: HttpMethod,
+      _setData: Function
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onOnline: onEveryOnline = (
+      _run: Function,
+      _params: any,
+      _name: string,
+      _method: HttpMethod,
+      _setData: Function
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onAppStatusChange: onEveryAppStatusChange = (
+      _status: string,
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+  } = provider.every;
 
   const run: any = debounce((...args: any) => {
     if (loading === false) {
@@ -77,7 +215,8 @@ export function useRequest(
 
       if (debug) console.groupCollapsed('call ' + service.name, args);
       if (debug) console.groupEnd();
-      if (onFetch) onFetch(args, service.name);
+      if (onFetch) onFetch(args, service.name, method);
+      if (onEveryFetch) onEveryFetch(args, service.name, method);
       if (online) {
         service(...args)
           .then((response: any) => {
@@ -96,7 +235,20 @@ export function useRequest(
               response[provider.successKey] !== undefined
             ) {
               setData(response[provider.successKey]);
-              if (onSuccess) onSuccess(response[provider.successKey], args);
+              if (onSuccess)
+                onSuccess(
+                  response[provider.successKey],
+                  args,
+                  service.name,
+                  method
+                );
+              if (onEverySuccess)
+                onEverySuccess(
+                  response[provider.successKey],
+                  args,
+                  service.name,
+                  method
+                );
               if (response[provider.successKey] && provider) {
                 if (provider.setCache) {
                   const key = service.name + JSON.stringify(args);
@@ -115,7 +267,9 @@ export function useRequest(
             } else {
               setData(response);
 
-              if (onSuccess) onSuccess(response, args);
+              if (onSuccess) onSuccess(response, args, service.name, method);
+              if (onEverySuccess)
+                onEverySuccess(response, args, service.name, method);
               if (response && provider) {
                 if (provider.setCache) {
                   const key = service.name + JSON.stringify(args);
@@ -133,7 +287,8 @@ export function useRequest(
             setLoading(false);
             setError(e);
             setLoader(false);
-            if (onError) onError(e, args);
+            if (onError) onError(e, args, service.name, method);
+            if (onEveryError) onEveryError(e, args, service.name, method);
           });
       }
     }
@@ -141,23 +296,52 @@ export function useRequest(
 
   useEffect(() => {
     if (
-      provider.onlineStatus !== online &&
-      typeof provider.onlineStatus === 'boolean'
+      provider.connectionStatus !== online &&
+      typeof provider.connectionStatus === 'boolean'
     ) {
-      setOnline(provider.onlineStatus);
+      setOnline(provider.connectionStatus);
     }
-  }, [provider.onlineStatus]);
+  }, [provider.connectionStatus]);
+
+  useEffect(() => {
+    if (provider.appStatus !== status) {
+      setAppStatus(provider.appStatus);
+    }
+  }, [provider.appStatus]);
+
+  useEffect(() => {
+    if (onAppStatusChange) {
+      onAppStatusChange(status, run, params, service.name, method, setData);
+    }
+    if (onEveryAppStatusChange) {
+      onEveryAppStatusChange(
+        status,
+        run,
+        params,
+        service.name,
+        method,
+        setData
+      );
+    }
+  }, [status]);
+
   useEffect(() => {
     if (online === true) {
       if (onOnline && loader !== undefined) {
-        onOnline(run, params, service.name, setData);
+        onOnline(run, params, service.name, method, setData);
+      }
+      if (onEveryOnline) {
+        onEveryOnline(run, params, service.name, method, setData);
       }
     } else if (online === false) {
       setError(undefined);
       setLoading(false);
       setLoader(false);
       if (onOffline) {
-        onOffline(run, params, service.name, setData);
+        onOffline(run, params, service.name, method, setData);
+      }
+      if (onEveryOffline) {
+        onEveryOffline(run, params, service.name, method, setData);
       }
     }
   }, [online]);
@@ -178,5 +362,6 @@ export function useRequest(
     error,
     params,
     loader,
+    method,
   };
 }

@@ -1,22 +1,84 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { ReactNode, createContext, useContext } from 'react';
 import cache from 'memory-cache';
+import { HttpMethod } from './useRequest';
 
 type RequestConfig = {
-  onSuccess?: (data: any, params: any) => void;
-  onError?: (error: Error, params: any) => void;
-  onFetch?: (params: any) => void;
-  onOnline?: (
-    run: Function,
-    params: any,
-    name: string,
-    setData: Function
-  ) => void;
-  onOffline?: (
-    run: Function,
-    params: any,
-    name: string,
-    setData: Function
-  ) => void;
+  defaults: {
+    onSuccess?: (
+      data: any,
+      params: any,
+      name: string,
+      method: HttpMethod
+    ) => void;
+    onError?: (
+      error: Error,
+      params: any,
+      name: string,
+      method: HttpMethod
+    ) => void;
+    onFetch?: (params: any, name: string, method: HttpMethod) => void;
+    onOnline?: (
+      run: Function,
+      params: any,
+      name: string,
+      method: HttpMethod,
+      setData: Function
+    ) => void;
+    onOffline?: (
+      run: Function,
+      params: any,
+      name: string,
+      method: HttpMethod,
+      setData: Function
+    ) => void;
+    onAppStatusChange?: (
+      status: string,
+      run: Function,
+      params: any,
+      name: string,
+      method: HttpMethod,
+      setData: Function
+    ) => void;
+  };
+  every: {
+    onSuccess?: (
+      data: any,
+      params: any,
+      name: string,
+      method: HttpMethod
+    ) => void;
+    onError?: (
+      error: Error,
+      params: any,
+      name: string,
+      method: HttpMethod
+    ) => void;
+    onFetch?: (params: any, name: string, method: HttpMethod) => void;
+    onOnline?: (
+      run: Function,
+      params: any,
+      name: string,
+      method: HttpMethod,
+      setData: Function
+    ) => void;
+    onOffline?: (
+      run: Function,
+      params: any,
+      name: string,
+      method: HttpMethod,
+      setData: Function
+    ) => void;
+    onAppStatusChange?: (
+      status: string,
+      run: Function,
+      params: any,
+      name: string,
+      method: HttpMethod,
+      setData: Function
+    ) => void;
+  };
+
   children?: ReactNode;
   successKey?: string;
   getCache?: (key: string) => any;
@@ -26,21 +88,59 @@ type RequestConfig = {
   ttl?: number;
   cached?: boolean;
   debug?: boolean;
-  onlineStatus?: boolean;
+  connectionStatus?: boolean;
+  appStatus?: string;
 };
 export const RequestContext = createContext<RequestConfig>({
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onSuccess: (_data: any, _params: any) => {
-    // console.log(data);
-    // console.log(params);
+  defaults: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onSuccess: (
+      _data: any,
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onError: (
+      _error: Error,
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.error(error);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onFetch: (_params: any, _name: string, _method: HttpMethod) => {
+      // console.log(params);
+    },
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onError: (_error: Error, _params: any) => {
-    // console.error(error);
-  },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onFetch: (_params: any) => {
-    // console.log(params);
+  every: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onSuccess: (
+      _data: any,
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onError: (
+      _error: Error,
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.error(error);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onFetch: (_params: any, _name: string, _method: HttpMethod) => {
+      // console.log(params);
+    },
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ttl: 10 * 60 * 1000,
@@ -51,26 +151,21 @@ export const RequestContext = createContext<RequestConfig>({
 export const useRequestContext = () => useContext(RequestContext);
 
 export const RequestProvider = ({
-  onSuccess,
-  onError,
-  onFetch,
-  onOnline,
-  onOffline,
+  defaults,
+  every,
   children,
   successKey,
   ttl = 10 * 60 * 1000,
   debug = false,
-  onlineStatus,
+  connectionStatus,
+  appStatus,
   cached = false,
 }: RequestConfig): React.ReactElement => {
   return (
     <RequestContext.Provider
       value={{
-        onSuccess,
-        onError,
-        onFetch,
-        onOnline,
-        onOffline,
+        every,
+        defaults,
         successKey,
         setCache: (key: string, data: any, defaultTll: number = ttl) => {
           return cache.put(key, data, defaultTll);
@@ -87,7 +182,8 @@ export const RequestProvider = ({
         },
         ttl,
         debug,
-        onlineStatus,
+        connectionStatus,
+        appStatus,
         cached,
       }}
     >
