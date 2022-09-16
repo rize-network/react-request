@@ -4,7 +4,7 @@ import cache from 'memory-cache';
 import { HttpMethod } from './useRequest';
 
 type RequestConfig = {
-  defaults: {
+  defaults?: {
     onSuccess?: (
       data: any,
       params: any,
@@ -41,7 +41,7 @@ type RequestConfig = {
       setData: Function
     ) => void;
   };
-  every: {
+  every?: {
     onSuccess?: (
       data: any,
       params: any,
@@ -151,8 +151,8 @@ export const RequestContext = createContext<RequestConfig>({
 export const useRequestContext = () => useContext(RequestContext);
 
 export const RequestProvider = ({
-  defaults,
-  every,
+  defaults = {},
+  every = {},
   children,
   successKey,
   ttl = 10 * 60 * 1000,
