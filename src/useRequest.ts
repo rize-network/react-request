@@ -195,7 +195,7 @@ export function useRequest(
       // console.log(data);
       // console.log(params);
     },
-  } = provider.every;
+  } = provider.every ? provider.every : {};
 
   const run: any = debounce((...args: any) => {
     if (loading === false) {
@@ -217,80 +217,78 @@ export function useRequest(
       if (debug) console.groupEnd();
       if (onFetch) onFetch(args, service.name, method);
       if (onEveryFetch) onEveryFetch(args, service.name, method);
-      if (online) {
-        service(...args)
-          .then((response: any) => {
-            setError(undefined);
-            setLoading(false);
-            setLoader(false);
+      service(...args)
+        .then((response: any) => {
+          setError(undefined);
+          setLoading(false);
+          setLoader(false);
 
-            if (debug)
-              console.groupCollapsed('response ' + service.name, response);
-            if (debug) console.groupEnd();
+          if (debug)
+            console.groupCollapsed('response ' + service.name, response);
+          if (debug) console.groupEnd();
 
-            if (
-              response &&
-              response !== undefined &&
-              provider.successKey &&
-              response[provider.successKey] !== undefined
-            ) {
-              setData(response[provider.successKey]);
-              if (onSuccess)
-                onSuccess(
-                  response[provider.successKey],
-                  args,
-                  service.name,
-                  method
-                );
-              if (onEverySuccess)
-                onEverySuccess(
-                  response[provider.successKey],
-                  args,
-                  service.name,
-                  method
-                );
-              if (response[provider.successKey] && provider) {
-                if (provider.setCache) {
-                  const key = service.name + JSON.stringify(args);
+          if (
+            response &&
+            response !== undefined &&
+            provider.successKey &&
+            response[provider.successKey] !== undefined
+          ) {
+            setData(response[provider.successKey]);
+            if (onSuccess)
+              onSuccess(
+                response[provider.successKey],
+                args,
+                service.name,
+                method
+              );
+            if (onEverySuccess)
+              onEverySuccess(
+                response[provider.successKey],
+                args,
+                service.name,
+                method
+              );
+            if (response[provider.successKey] && provider) {
+              if (provider.setCache) {
+                const key = service.name + JSON.stringify(args);
 
-                  if (cached) {
-                    provider.setCache(key, response[provider.successKey]);
-                    if (debug)
-                      console.log(
-                        'write cache',
-                        key,
-                        response[provider.successKey]
-                      );
-                  }
-                }
-              }
-            } else {
-              setData(response);
-
-              if (onSuccess) onSuccess(response, args, service.name, method);
-              if (onEverySuccess)
-                onEverySuccess(response, args, service.name, method);
-              if (response && provider) {
-                if (provider.setCache) {
-                  const key = service.name + JSON.stringify(args);
-
-                  if (cached) {
-                    provider.setCache(key, response);
-                    if (debug) console.log('write cache', key, response);
-                  }
+                if (cached) {
+                  provider.setCache(key, response[provider.successKey]);
+                  if (debug)
+                    console.log(
+                      'write cache',
+                      key,
+                      response[provider.successKey]
+                    );
                 }
               }
             }
-          })
-          .catch((e: Error) => {
-            if (debug) console.log(service.name, e);
-            setLoading(false);
-            setError(e);
-            setLoader(false);
-            if (onError) onError(e, args, service.name, method);
-            if (onEveryError) onEveryError(e, args, service.name, method);
-          });
-      }
+          } else {
+            setData(response);
+
+            if (onSuccess) onSuccess(response, args, service.name, method);
+            if (onEverySuccess)
+              onEverySuccess(response, args, service.name, method);
+            if (response && provider) {
+              if (provider.setCache) {
+                const key = service.name + JSON.stringify(args);
+
+                if (cached) {
+                  provider.setCache(key, response);
+                  if (debug) console.log('write cache', key, response);
+                }
+              }
+            }
+          }
+        })
+        .catch((e: Error) => {
+          if (debug) console.log(service.name, e);
+          setLoading(false);
+          setError(e);
+          setLoader(false);
+          if (onError) onError(e, args, service.name, method);
+          if (onEveryError) onEveryError(e, args, service.name, method);
+        });
     }
   }, 1000);
 
