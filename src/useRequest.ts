@@ -109,6 +109,7 @@ export function useRequest(
   const provider = useRequestContext();
   const [data, setData] = useState(undefined);
   const [params, setParams] = useState([]);
+  const [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(false);
   const [online, setOnline] = useState(true);
   const [status, setAppStatus]: [string | undefined, Function] =
@@ -198,6 +199,7 @@ export function useRequest(
   } = provider.every ? provider.every : {};
 
   const run: any = debounce((...args: any) => {
+    setDirty(true);
     if (loading === false) {
       setLoading(true);
       if (data === undefined) setLoader(true);
@@ -308,10 +310,10 @@ export function useRequest(
   }, [provider.appStatus]);
 
   useEffect(() => {
-    if (onAppStatusChange) {
+    if (onAppStatusChange && dirty) {
       onAppStatusChange(status, run, params, service.name, method, setData);
     }
-    if (onEveryAppStatusChange) {
+    if (onEveryAppStatusChange && dirty) {
       onEveryAppStatusChange(
         status,
         run,
@@ -325,20 +327,20 @@ export function useRequest(
 
   useEffect(() => {
     if (online === true) {
-      if (onOnline && loader !== undefined) {
+      if (onOnline && dirty) {
         onOnline(run, params, service.name, method, setData);
       }
-      if (onEveryOnline) {
+      if (onEveryOnline && dirty) {
         onEveryOnline(run, params, service.name, method, setData);
       }
     } else if (online === false) {
       setError(undefined);
       setLoading(false);
       setLoader(false);
-      if (onOffline) {
+      if (onOffline && dirty) {
         onOffline(run, params, service.name, method, setData);
       }
-      if (onEveryOffline) {
+      if (onEveryOffline && dirty) {
         onEveryOffline(run, params, service.name, method, setData);
       }
     }
