@@ -287,6 +287,7 @@ export function useRequest(
           if (debug) console.log(service.name, e);
           setLoading(false);
           setError(e);
+          setData(undefined);
           setLoader(false);
           if (onError) onError(e, args, service.name, method);
           if (onEveryError) onEveryError(e, args, service.name, method);
