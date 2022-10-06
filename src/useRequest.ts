@@ -54,6 +54,16 @@ export type HttpMethod =
   | 'HEAD'
   | 'PATCH';
 
+export type UseRequestProperties = {
+  loading: boolean;
+  error?: Error;
+  params?: any;
+  loader?: any;
+  data?: any;
+  clear: Function;
+  method?: HttpMethod;
+};
+
 export type UseOnEveryOptions = {
   onEverySuccess?: (
     data: any,
