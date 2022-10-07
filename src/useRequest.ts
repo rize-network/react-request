@@ -212,7 +212,6 @@ export function useRequest(
     setDirty(true);
     if (loading === false) {
       setLoading(true);
-      if (data === undefined) setLoader(true);
       if (cached && data === undefined && provider.getCache) {
         const key = service.name + JSON.stringify(args);
         const cachedData = provider.getCache(key);
@@ -220,9 +219,9 @@ export function useRequest(
           if (debug) console.log('read cache', key, cachedData);
           setData(cachedData);
           setLoading(false);
-          setLoader(false);
         }
       }
+      setLoader(true);
       setParams(args);
 
       if (debug) console.groupCollapsed('call ' + service.name, args);
