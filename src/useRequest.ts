@@ -62,6 +62,11 @@ export type UseRequestProperties = {
   data?: any;
   clear: Function;
   method?: HttpMethod;
+  debounce?: number;
+};
+
+export const getCacheKey = (service: Function, params: any) => {
+  return service.name + JSON.stringify(params);
 };
 
 export type UseOnEveryOptions = {
@@ -261,7 +266,7 @@ export function useRequest(
               );
             if (response[provider.successKey] && provider) {
               if (provider.setCache) {
-                const key = service.name + JSON.stringify(args);
+                const key = getCacheKey(service, args);
 
                 if (cached) {
                   provider.setCache(key, response[provider.successKey]);
@@ -282,7 +287,7 @@ export function useRequest(
               onEverySuccess(response, args, service.name, method);
             if (response && provider) {
               if (provider.setCache) {
-                const key = service.name + JSON.stringify(args);
+                const key = getCacheKey(service, args);
 
                 if (cached) {
                   provider.setCache(key, response);

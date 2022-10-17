@@ -180,6 +180,7 @@ export const RequestProvider = ({
         getCache: (key: string) => {
           return cache.get(key);
         },
+
         ttl,
         debug,
         connectionStatus,
