@@ -16,9 +16,11 @@ export const useUploadRequest = function (url: string, options = {}) {
     onError = (newError: Error) => {
       console.log('onError', { error: newError });
     },
+    token = false,
   }: {
     onSuccess?: (d: any) => void;
     onError?: (e: Error) => void;
+    token?: string | boolean;
   } = options;
 
   const run: any = debounce((file: any) => {
@@ -44,6 +46,7 @@ export const useUploadRequest = function (url: string, options = {}) {
         setError(response);
         onError(response);
       },
+      token,
     });
   }, 1000);
 

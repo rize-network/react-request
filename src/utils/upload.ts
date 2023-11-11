@@ -7,7 +7,7 @@ interface UploadRequestProps {
   onProgress?: Function;
   onSuccess?: Function;
   onFailure?: Function;
-  access_token?: string;
+  token?: string | boolean;
 }
 
 export const upload = async ({
@@ -16,7 +16,7 @@ export const upload = async ({
   onProgress,
   onSuccess,
   onFailure,
-  access_token,
+  token,
 }: UploadRequestProps) => {
   let xhr: XMLHttpRequest;
   if (isBrowser()) {
@@ -66,18 +66,16 @@ export const upload = async ({
       }
     };
 
-    if (access_token) {
-      xhr.open('POST', `${url}?accessToken=${access_token}`, true);
-      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      xhr.setRequestHeader('Authorization', `Bearer ${access_token}`);
-
-      const formData = new FormData();
-
-      formData.append('accessToken', access_token);
-      formData.append('file', file);
-      console.log('formData', formData);
-
-      xhr.send(formData);
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    if (token) {
+      xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    console.log('formData', formData);
+
+    xhr.send(formData);
   }
 };
