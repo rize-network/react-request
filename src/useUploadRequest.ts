@@ -21,7 +21,7 @@ export const useUploadRequest = function (url: string, options = {}) {
     onError?: (e: Error) => void;
   } = options;
 
-  const run = debounce((file: any) => {
+  const run: any = debounce((file: any) => {
     setLoading(true);
     setProgress(0);
     setFile(file);
@@ -49,7 +49,7 @@ export const useUploadRequest = function (url: string, options = {}) {
 
   const result: {
     data: any;
-    run: void;
+    run: (file: any) => void;
     loading: boolean;
     error?: Error;
     progress?: any;
