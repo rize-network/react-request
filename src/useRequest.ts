@@ -43,6 +43,7 @@ export type UseRequestOption = {
   cached?: boolean;
   debug?: boolean;
   method?: HttpMethod;
+  cacheMethod?: HttpMethod[];
 };
 
 export type HttpMethod =
@@ -108,7 +109,7 @@ export type UseOnEveryOptions = {
 
 export function useRequest(
   service: any,
-  options = {}
+  options: UseRequestOption = {}
 ): {
   run: any;
   clear: any;
@@ -144,7 +145,11 @@ export function useRequest(
     onOffline = provider.defaults?.onOffline,
     onOnline = provider.defaults?.onOnline,
     onAppStatusChange = provider.defaults?.onAppStatusChange,
-    cached = provider.cached,
+    cached = provider.cacheMethod?.includes(
+      options.method ? options.method : 'GET'
+    )
+      ? provider.cached
+      : false,
     debug = provider.debug,
     method = 'GET',
   }: UseRequestOption = options;

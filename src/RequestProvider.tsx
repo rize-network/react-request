@@ -90,6 +90,7 @@ type RequestConfig = {
   debug?: boolean;
   connectionStatus?: boolean;
   appStatus?: string;
+  cacheMethod?: HttpMethod[];
 };
 export const RequestContext = createContext<RequestConfig>({
   defaults: {
@@ -146,6 +147,7 @@ export const RequestContext = createContext<RequestConfig>({
   ttl: 10 * 60 * 1000,
   cached: false,
   debug: false,
+  cacheMethod: ['GET'],
 });
 
 export const useRequestContext = () => useContext(RequestContext);
@@ -160,6 +162,7 @@ export const RequestProvider = ({
   connectionStatus,
   appStatus,
   cached = false,
+  cacheMethod = ['GET'],
 }: RequestConfig): React.ReactElement => {
   return (
     <RequestContext.Provider
@@ -180,12 +183,12 @@ export const RequestProvider = ({
         getCache: (key: string) => {
           return cache.get(key);
         },
-
         ttl,
         debug,
         connectionStatus,
         appStatus,
         cached,
+        cacheMethod,
       }}
     >
       {children}
