@@ -3,6 +3,7 @@ import { isBrowser } from './env';
 interface UploadRequestProps {
   url: string;
   file: any;
+  options?: any;
   params?: any;
   onProgress?: Function;
   onSuccess?: Function;
@@ -17,6 +18,7 @@ export const upload = async ({
   onSuccess,
   onFailure,
   token,
+  options = {},
 }: UploadRequestProps) => {
   let xhr: XMLHttpRequest;
   if (isBrowser()) {
@@ -73,7 +75,7 @@ export const upload = async ({
     }
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append(options.fileName ? options.fileName : 'file', file);
     console.log('formData', formData);
 
     xhr.send(formData);

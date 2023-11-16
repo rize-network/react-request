@@ -47,6 +47,7 @@ export const useUploadRequest = function (url: string, options = {}) {
         onError(response);
       },
       token,
+      options,
     });
   }, 1000);
 
