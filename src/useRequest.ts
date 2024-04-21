@@ -43,6 +43,7 @@ export type UseRequestOption = {
   cached?: boolean;
   debug?: boolean;
   method?: HttpMethod;
+  upload?: boolean;
   cacheMethod?: HttpMethod[];
 };
 
@@ -56,14 +57,17 @@ export type HttpMethod =
   | 'PATCH';
 
 export type UseRequestProperties = {
+  run: any;
+  data: any;
   loading: boolean;
+  progress: number;
+  clear?: any;
+  loader?: boolean;
+  method?: HttpMethod;
   error?: Error;
   params?: any;
-  loader?: any;
-  data?: any;
-  clear: Function;
-  method?: HttpMethod;
-  debounce?: number;
+  cached?: boolean;
+  debug?: boolean;
 };
 
 export const getCacheKey = (service: Function, params: any) => {
@@ -110,26 +114,15 @@ export type UseOnEveryOptions = {
 export function useRequest(
   service: any,
   options: UseRequestOption = {}
-): {
-  run: any;
-  clear: any;
-  data: any;
-  loading: boolean;
-  loader?: boolean;
-  method?: HttpMethod;
-  error?: Error;
-  params?: any;
-  cached?: boolean;
-  debug?: boolean;
-} {
+): UseRequestProperties {
   const provider = useRequestContext();
   const [data, setData] = useState(undefined);
   const [params, setParams] = useState([]);
   const [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [online, setOnline] = useState(true);
-  const [status, setAppStatus]: [string | undefined, Function] =
-    useState('active');
+  const [status, setAppStatus]: [string, Function] = useState('active');
 
   const [loader, setLoader]: [boolean | undefined, Function] = useState();
 
@@ -220,6 +213,7 @@ export function useRequest(
 
   const run: any = debounce((...args: any) => {
     setDirty(true);
+    setProgress(0);
     if (loading === false) {
       setLoading(true);
       if (cached && data === undefined && provider.getCache) {
@@ -238,6 +232,8 @@ export function useRequest(
       if (debug) console.groupEnd();
       if (onFetch) onFetch(args, service.name, method);
       if (onEveryFetch) onEveryFetch(args, service.name, method);
+
+      args.onProgress = setProgress;
       service(...args)
         .then((response: any) => {
           setError(undefined);
@@ -383,5 +379,6 @@ export function useRequest(
     params,
     loader,
     method,
+    progress,
   };
 }

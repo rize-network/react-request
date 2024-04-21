@@ -1,5 +1,5 @@
 {
-  "version": "0.0.46",
+  "version": "0.0.52",
   "description": "React Request",
   "repository": "git@github.com:rize-network/react-request.git",
   "license": "MIT",
@@ -87,7 +87,7 @@
     "size-limit": "^7.0.5",
     "styled-components": "^5.3.3",
     "tsdx": "^0.14.1",
-    "tslib": "^2.3.1",
+    "tslib": "^2.6.2",
     "typescript": "^4.5.4"
   },
   "lint-staged": {
