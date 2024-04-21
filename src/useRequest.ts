@@ -120,7 +120,7 @@ export function useRequest(
   const [params, setParams] = useState([]);
   const [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [progress, onProgress] = useState(0);
   const [online, setOnline] = useState(true);
   const [status, setAppStatus]: [string, Function] = useState('active');
 
@@ -213,7 +213,7 @@ export function useRequest(
 
   const run: any = debounce((...args: any) => {
     setDirty(true);
-    setProgress(0);
+    onProgress(0);
     if (loading === false) {
       setLoading(true);
       if (cached && data === undefined && provider.getCache) {
@@ -233,8 +233,7 @@ export function useRequest(
       if (onFetch) onFetch(args, service.name, method);
       if (onEveryFetch) onEveryFetch(args, service.name, method);
 
-      args.onProgress = setProgress;
-      service(...args)
+      service(...args, onProgress)
         .then((response: any) => {
           setError(undefined);
           setLoading(false);
