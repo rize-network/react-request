@@ -264,7 +264,7 @@ export function useRequest(
     },
   } = provider.every ? provider.every : {};
 
-  const run: any = debounce((args: any) => {
+  const run: any = debounce((args: any = {}) => {
     setDirty(true);
     setProgress(0);
     if (onProgress) onProgress(0, args, service.name, method);
@@ -289,7 +289,7 @@ export function useRequest(
       if (onFetch) onFetch(args, service.name, method);
       if (onEveryFetch) onEveryFetch(args, service.name, method);
 
-      service(...args)
+      service(args)
         .then((response: any) => {
           setError(undefined);
           setLoading(false);
