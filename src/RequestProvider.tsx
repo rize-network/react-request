@@ -116,6 +116,7 @@ type RequestConfig = {
   resetCache?: () => void;
   setCache?: (key: string, data: any) => void;
   ttl?: number;
+  retryDelay?: number;
   cached?: boolean;
   debug?: boolean;
   connectionStatus?: boolean;
@@ -175,6 +176,7 @@ export const RequestContext = createContext<RequestConfig>({
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ttl: 10 * 60 * 1000,
+  retryDelay: 10 * 1000,
   cached: false,
   debug: false,
   cacheMethod: ['GET'],
@@ -188,6 +190,7 @@ export const RequestProvider = ({
   children,
   successKey,
   ttl = 10 * 60 * 1000,
+  retryDelay = 10 * 1000,
   debug = false,
   connectionStatus,
   appStatus,
@@ -214,6 +217,7 @@ export const RequestProvider = ({
           return cache.get(key);
         },
         ttl,
+        retryDelay,
         debug,
         connectionStatus,
         appStatus,

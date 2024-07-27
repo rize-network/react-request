@@ -59,6 +59,7 @@ export type UseRequestOption = {
   debug?: boolean;
   method?: HttpMethod;
   upload?: boolean;
+  retryDelay?: number;
   cacheMethod?: HttpMethod[];
 };
 
@@ -171,6 +172,7 @@ export function useRequest(
     onOnline = provider.defaults?.onOnline,
     onAppStatusChange = provider.defaults?.onAppStatusChange,
     onRetry = provider.defaults?.onRetry,
+    retryDelay = provider.retryDelay,
     cached = provider.cacheMethod?.includes(
       options.method ? options.method : 'GET'
     )
@@ -292,8 +294,6 @@ export function useRequest(
       service(...args)
         .then((response: any) => {
           setError(undefined);
-          setLoading(false);
-          setLoader(false);
           setProgress(100);
 
           if (debug)
@@ -312,7 +312,13 @@ export function useRequest(
                 setLoader,
                 setData
               );
-            } else if (onEveryRetry) {
+            } else {
+              setTimeout(() => {
+                run(...args);
+              }, retryDelay);
+            }
+
+            if (onEveryRetry) {
               onEveryRetry(
                 run,
                 params,
@@ -329,6 +335,8 @@ export function useRequest(
             provider.successKey &&
             response[provider.successKey] !== undefined
           ) {
+            setLoading(false);
+            setLoader(false);
             setData(response[provider.successKey]);
             setRetry(false);
             if (onSuccess)
@@ -363,6 +371,8 @@ export function useRequest(
           } else {
             setData(response);
             setRetry(false);
+            setLoading(false);
+            setLoader(false);
             if (onSuccess) onSuccess(response, args, service.name, method);
             if (onEverySuccess)
               onEverySuccess(response, args, service.name, method);
