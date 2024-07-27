@@ -40,6 +40,15 @@ type RequestConfig = {
       method: HttpMethod,
       setData: Function
     ) => void;
+    onRetry?: (
+      run: Function,
+      params: any,
+      name: string,
+      method: HttpMethod,
+      setLoading: Function,
+      setLoader: Function,
+      setData: Function
+    ) => void;
   };
   every?: {
     onSuccess?: (
@@ -60,6 +69,15 @@ type RequestConfig = {
       params: any,
       name: string,
       method: HttpMethod,
+      setData: Function
+    ) => void;
+    onRetry?: (
+      run: Function,
+      params: any,
+      name: string,
+      method: HttpMethod,
+      setLoading: Function,
+      setLoader: Function,
       setData: Function
     ) => void;
     onOffline?: (

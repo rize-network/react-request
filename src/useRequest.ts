@@ -25,6 +25,15 @@ export type UseRequestOption = {
     method: HttpMethod,
     setData: Function
   ) => void;
+  onRetry?: (
+    run: Function,
+    params: any,
+    name: string,
+    method: HttpMethod,
+    setLoading: Function,
+    setLoader: Function,
+    setData: Function
+  ) => void;
   onOffline?: (
     run: Function,
     params: any,
@@ -102,6 +111,15 @@ export type UseOnEveryOptions = {
     method: HttpMethod,
     setData: Function
   ) => void;
+  onEveryRetry?: (
+    run: Function,
+    params: any,
+    name: string,
+    method: HttpMethod,
+    setLoading: Function,
+    setLoader: Function,
+    setData: Function
+  ) => void;
   onEveryAppStatusChange?: (
     run: Function,
     params: any,
@@ -122,6 +140,7 @@ export function useRequest(
   const [loading, setLoading] = useState(false);
   const [progress, onProgress] = useState(0);
   const [online, setOnline] = useState(true);
+  const [retry, setRetry] = useState(true);
   const [status, setAppStatus]: [string, Function] = useState('active');
 
   const [loader, setLoader]: [boolean | undefined, Function] = useState();
@@ -138,6 +157,7 @@ export function useRequest(
     onOffline = provider.defaults?.onOffline,
     onOnline = provider.defaults?.onOnline,
     onAppStatusChange = provider.defaults?.onAppStatusChange,
+    onRetry = provider.defaults?.onRetry,
     cached = provider.cacheMethod?.includes(
       options.method ? options.method : 'GET'
     )
@@ -199,6 +219,16 @@ export function useRequest(
       // console.log(data);
       // console.log(params);
     },
+    onRetry: onEveryRetry = (
+      _run: Function,
+      _params: any,
+      _name: string,
+      _method: HttpMethod,
+      _setData: Function
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onAppStatusChange: onEveryAppStatusChange = (
       _status: string,
@@ -211,103 +241,138 @@ export function useRequest(
     },
   } = provider.every ? provider.every : {};
 
-  const run: any = debounce((...args: any) => {
-    setDirty(true);
-    onProgress(0);
-    if (loading === false) {
-      setLoading(true);
-      if (cached && data === undefined && provider.getCache) {
-        const key = service.name + JSON.stringify(args);
-        const cachedData = provider.getCache(key);
-        if (cachedData) {
-          if (debug) console.log('read cache', key, cachedData);
-          setData(cachedData);
-          setLoading(false);
-        }
+  const run: any = debounce(
+    (
+      args: any,
+      {
+        onRunSuccess = onSuccess,
+        onRunError = onError,
+        onRunFetch = onFetch,
+        onRunProgress = onProgress,
       }
-      setLoader(true);
-      setParams(args);
-
-      if (debug) console.groupCollapsed('call ' + service.name, args);
-      if (debug) console.groupEnd();
-      if (onFetch) onFetch(args, service.name, method);
-      if (onEveryFetch) onEveryFetch(args, service.name, method);
-
-      service(...args, onProgress)
-        .then((response: any) => {
-          setError(undefined);
-          setLoading(false);
-          setLoader(false);
-
-          if (debug)
-            console.groupCollapsed('response ' + service.name, response);
-          if (debug) console.groupEnd();
-
-          if (
-            response &&
-            response !== undefined &&
-            provider.successKey &&
-            response[provider.successKey] !== undefined
-          ) {
-            setData(response[provider.successKey]);
-            if (onSuccess)
-              onSuccess(
-                response[provider.successKey],
-                args,
-                service.name,
-                method
-              );
-            if (onEverySuccess)
-              onEverySuccess(
-                response[provider.successKey],
-                args,
-                service.name,
-                method
-              );
-            if (response[provider.successKey] && provider) {
-              if (provider.setCache) {
-                const key = getCacheKey(service, args);
-
-                if (cached) {
-                  provider.setCache(key, response[provider.successKey]);
-                  if (debug)
-                    console.log(
-                      'write cache',
-                      key,
-                      response[provider.successKey]
-                    );
-                }
-              }
-            }
-          } else {
-            setData(response);
-
-            if (onSuccess) onSuccess(response, args, service.name, method);
-            if (onEverySuccess)
-              onEverySuccess(response, args, service.name, method);
-            if (response && provider) {
-              if (provider.setCache) {
-                const key = getCacheKey(service, args);
-
-                if (cached) {
-                  provider.setCache(key, response);
-                  if (debug) console.log('write cache', key, response);
-                }
-              }
-            }
+    ) => {
+      setDirty(true);
+      onRunProgress(0);
+      if (loading === false) {
+        setLoading(true);
+        if (cached && data === undefined && provider.getCache) {
+          const key = service.name + JSON.stringify(args);
+          const cachedData = provider.getCache(key);
+          if (cachedData) {
+            if (debug) console.log('read cache', key, cachedData);
+            setData(cachedData);
+            setLoading(false);
           }
-        })
-        .catch((e: Error) => {
-          if (debug) console.log(service.name, e);
-          setLoading(false);
-          setError(e);
-          setData(undefined);
-          setLoader(false);
-          if (onError) onError(e, args, service.name, method);
-          if (onEveryError) onEveryError(e, args, service.name, method);
-        });
-    }
-  }, 1000);
+        }
+        setLoader(true);
+        setParams(args);
+
+        if (debug) console.groupCollapsed('call ' + service.name, args);
+        if (debug) console.groupEnd();
+        if (onRunFetch) onRunFetch(args, service.name, method);
+        if (onEveryFetch) onEveryFetch(args, service.name, method);
+
+        service(...args, onProgress)
+          .then((response: any) => {
+            setError(undefined);
+            setLoading(false);
+            setLoader(false);
+
+            if (debug)
+              console.groupCollapsed('response ' + service.name, response);
+            if (debug) console.groupEnd();
+
+            if (retry == false && response && response['retry']) {
+              setRetry(true);
+              if (onRetry) {
+                onRetry(
+                  run,
+                  params,
+                  service.name,
+                  method,
+                  setLoading,
+                  setLoader,
+                  setData
+                );
+              } else if (onEveryRetry) {
+                onEveryRetry(
+                  run,
+                  params,
+                  service.name,
+                  method,
+                  setLoading,
+                  setLoader,
+                  setData
+                );
+              }
+            } else if (
+              response &&
+              response !== undefined &&
+              provider.successKey &&
+              response[provider.successKey] !== undefined
+            ) {
+              setData(response[provider.successKey]);
+              setRetry(false);
+              if (onRunSuccess)
+                onRunSuccess(
+                  response[provider.successKey],
+                  args,
+                  service.name,
+                  method
+                );
+              if (onEverySuccess)
+                onEverySuccess(
+                  response[provider.successKey],
+                  args,
+                  service.name,
+                  method
+                );
+              if (response[provider.successKey] && provider) {
+                if (provider.setCache) {
+                  const key = getCacheKey(service, args);
+
+                  if (cached) {
+                    provider.setCache(key, response[provider.successKey]);
+                    if (debug)
+                      console.log(
+                        'write cache',
+                        key,
+                        response[provider.successKey]
+                      );
+                  }
+                }
+              }
+            } else {
+              setData(response);
+              setRetry(false);
+              if (onSuccess) onSuccess(response, args, service.name, method);
+              if (onEverySuccess)
+                onEverySuccess(response, args, service.name, method);
+              if (response && provider) {
+                if (provider.setCache) {
+                  const key = getCacheKey(service, args);
+
+                  if (cached) {
+                    provider.setCache(key, response);
+                    if (debug) console.log('write cache', key, response);
+                  }
+                }
+              }
+            }
+          })
+          .catch((e: Error) => {
+            if (debug) console.log(service.name, e);
+            setLoading(false);
+            setError(e);
+            setData(undefined);
+            setLoader(false);
+            if (onRunError) onRunError(e, args, service.name, method);
+            if (onEveryError) onEveryError(e, args, service.name, method);
+          });
+      }
+    },
+    1000
+  );
 
   useEffect(() => {
     if (
