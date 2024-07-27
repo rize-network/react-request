@@ -171,8 +171,8 @@ export const RequestContext = createContext<RequestConfig>({
 export const useRequestContext = () => useContext(RequestContext);
 
 export const RequestProvider = ({
-  defaults = {},
-  every = {},
+  defaults,
+  every,
   children,
   successKey,
   ttl = 10 * 60 * 1000,
