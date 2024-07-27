@@ -289,7 +289,7 @@ export function useRequest(
       if (onFetch) onFetch(args, service.name, method);
       if (onEveryFetch) onEveryFetch(args, service.name, method);
 
-      service(...args, setProgress)
+      service(...args)
         .then((response: any) => {
           setError(undefined);
           setLoading(false);
