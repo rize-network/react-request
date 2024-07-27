@@ -18,6 +18,12 @@ export type UseRequestOption = {
     method: HttpMethod
   ) => void;
   onFetch?: (params: any, name: string, method: HttpMethod) => void;
+  onProgress?: (
+    progression: number,
+    params: any,
+    name: string,
+    method: HttpMethod
+  ) => void;
   onOnline?: (
     run: Function,
     params: any,
@@ -138,7 +144,7 @@ export function useRequest(
   const [params, setParams] = useState([]);
   const [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [progress, onProgress] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [online, setOnline] = useState(true);
   const [retry, setRetry] = useState(true);
   const [status, setAppStatus]: [string, Function] = useState('active');
@@ -154,6 +160,7 @@ export function useRequest(
     onSuccess = provider.defaults?.onSuccess,
     onError = provider.defaults?.onError,
     onFetch = provider.defaults?.onFetch,
+    onProgress = provider.defaults?.onProgress,
     onOffline = provider.defaults?.onOffline,
     onOnline = provider.defaults?.onOnline,
     onAppStatusChange = provider.defaults?.onAppStatusChange,
@@ -245,14 +252,15 @@ export function useRequest(
     (
       args: any,
       {
-        onRunSuccess = onSuccess,
-        onRunError = onError,
-        onRunFetch = onFetch,
-        onRunProgress = onProgress,
-      }
+        onSuccess: onRunSuccess = onSuccess,
+        onError: onRunError = onError,
+        onFetch: onRunFetch = onFetch,
+        onProgress: onRunProgress = onProgress,
+      }: UseRequestOption
     ) => {
       setDirty(true);
-      onRunProgress(0);
+      setProgress(0);
+      if (onRunProgress) onRunProgress(0, args, service.name, method);
       if (loading === false) {
         setLoading(true);
         if (cached && data === undefined && provider.getCache) {
@@ -272,11 +280,12 @@ export function useRequest(
         if (onRunFetch) onRunFetch(args, service.name, method);
         if (onEveryFetch) onEveryFetch(args, service.name, method);
 
-        service(...args, onProgress)
+        service(...args, setProgress)
           .then((response: any) => {
             setError(undefined);
             setLoading(false);
             setLoader(false);
+            setProgress(100);
 
             if (debug)
               console.groupCollapsed('response ' + service.name, response);
@@ -345,7 +354,8 @@ export function useRequest(
             } else {
               setData(response);
               setRetry(false);
-              if (onSuccess) onSuccess(response, args, service.name, method);
+              if (onRunSuccess)
+                onRunSuccess(response, args, service.name, method);
               if (onEverySuccess)
                 onEverySuccess(response, args, service.name, method);
               if (response && provider) {
