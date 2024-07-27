@@ -70,6 +70,12 @@ type RequestConfig = {
       method: HttpMethod
     ) => void;
     onFetch?: (params: any, name: string, method: HttpMethod) => void;
+    onProgress?: (
+      progression: number,
+      params: any,
+      name: string,
+      method: HttpMethod
+    ) => void;
     onOnline?: (
       run: Function,
       params: any,

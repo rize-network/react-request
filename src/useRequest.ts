@@ -103,6 +103,12 @@ export type UseOnEveryOptions = {
     method: HttpMethod
   ) => void;
   onEveryFetch?: (params: any, name: string, method: HttpMethod) => void;
+  onEveryProgress?: (
+    progression: number,
+    params: any,
+    name: string,
+    method: HttpMethod
+  ) => void;
   onEveryOnline?: (
     run: Function,
     params: any,
@@ -204,6 +210,16 @@ export function useRequest(
       // console.log(data);
       // console.log(params);
     },
+    onProgress: onEveryProgress = (
+      _progression: number,
+      _params: any,
+      _name: string,
+      _method: HttpMethod
+    ) => {
+      // console.log(data);
+      // console.log(params);
+    },
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onOffline: onEveryOffline = (
       _run: Function,
@@ -252,6 +268,8 @@ export function useRequest(
     setDirty(true);
     setProgress(0);
     if (onProgress) onProgress(0, args, service.name, method);
+    if (onEveryProgress) onEveryProgress(progress, args, service.name, method);
+
     if (loading === false) {
       setLoading(true);
       if (cached && data === undefined && provider.getCache) {
@@ -366,6 +384,7 @@ export function useRequest(
           setError(e);
           setData(undefined);
           setLoader(false);
+          setProgress(0);
           if (onError) onError(e, args, service.name, method);
           if (onEveryError) onEveryError(e, args, service.name, method);
         });
