@@ -11,66 +11,79 @@ export type HttpMethod =
   | 'OPTIONS'
   | 'HEAD'
   | 'PATCH';
-
-export interface UseRequestOption<T = any, R = any> {
+export type UseRequestOption = {
   onSuccess?: (
-    data: R,
-    params: T | undefined,
+    data: any,
+    params: any,
     name: string,
     method: HttpMethod
   ) => void;
   onError?: (
-    error: RequestError,
-    params: T | undefined,
+    error: Error,
+    params: any,
     name: string,
     method: HttpMethod
   ) => void;
-  onFetch?: (params: T | undefined, name: string, method: HttpMethod) => void;
+  onFetch?: (params: any, name: string, method: HttpMethod) => void;
   onProgress?: (
     progression: number,
-    params: T | undefined,
+    params: any,
     name: string,
     method: HttpMethod
   ) => void;
   onOnline?: (
-    run: (params?: T) => Promise<R>,
-    params: T | undefined,
+    run: Function,
+    params: any,
     name: string,
     method: HttpMethod,
-    setData: (data: R) => void
+    setData: Function
   ) => void;
   onRetry?: (
-    run: (params?: T) => Promise<R>,
-    params: T | undefined,
+    run: Function,
+    params: any,
     name: string,
     method: HttpMethod,
-    setLoading: (loading: boolean) => void,
-    setLoader: (loading: boolean) => void,
-    setData: (data: R) => void
+    setLoading: Function,
+    setLoader: Function,
+    setData: Function
   ) => void;
   onOffline?: (
-    run: (params?: T) => Promise<R>,
-    params: T | undefined,
+    run: Function,
+    params: any,
     name: string,
     method: HttpMethod,
-    setData: (data: R) => void
+    setData: Function
   ) => void;
   onAppStatusChange?: (
     status: string,
-    run: (params?: T) => Promise<R>,
-    params: T | undefined,
+    run: Function,
+    params: any,
     name: string,
     method: HttpMethod,
-    setData: (data: R) => void
+    setData: Function
   ) => void;
   cached?: boolean;
   debug?: boolean;
   method?: HttpMethod;
   upload?: boolean;
   retryDelay?: number;
-  cacheMethod?: HttpMethod[];
   successKey?: string;
-}
+  cacheMethod?: HttpMethod[];
+};
+
+export type UseRequestProperties = {
+  run: any;
+  data: any;
+  loading: boolean;
+  progress: number;
+  clear?: any;
+  loader?: boolean;
+  method?: HttpMethod;
+  error?: Error;
+  params?: any;
+  cached?: boolean;
+  debug?: boolean;
+};
 
 export class RequestError extends Error {
   public errors?: Record<string, string | string[]>;
@@ -103,7 +116,7 @@ export interface UseRequestResult<T = any, R = any> {
 
 function createFormikConfig<T extends object, R = any>(
   run: (params?: T) => Promise<R>,
-  options: UseRequestOption<T, R>
+  options: UseRequestOption
 ): Omit<FormikConfig<T>, 'initialValues' | 'validationSchema'> {
   const handleSubmit = async (values: T, helpers: FormikHelpers<T>) => {
     try {
@@ -154,7 +167,7 @@ export const getCacheKey = (service: Function, params?: any): string => {
 
 export function useRequest<T extends object = any, R = any>(
   service: (params?: T) => Promise<R>,
-  options: UseRequestOption<T, R> = {}
+  options: UseRequestOption = {}
 ): UseRequestResult<T, R> {
   const provider = useRequestContext();
   const [data, setData] = useState<R>();
