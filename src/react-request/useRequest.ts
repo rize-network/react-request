@@ -117,7 +117,7 @@ export interface UseRequestResult<T = any, R = any> {
 
 function createFormikConfig<T extends object, R = any>(
   run: (params?: T) => Promise<R>,
-  options: UseRequestOption
+  _options: UseRequestOption
 ): Omit<FormikConfig<T>, 'initialValues' | 'validationSchema'> {
   const handleSubmit = async (values: T, helpers: FormikHelpers<T>) => {
     try {
@@ -125,7 +125,7 @@ function createFormikConfig<T extends object, R = any>(
       return response;
     } catch (error) {
       const requestError = error as RequestError;
-      if (!options.onError) {
+      if (helpers.setFieldError) {
         if (requestError.errors) {
           Object.entries(requestError.errors).forEach(([field, message]) => {
             if (Object.prototype.hasOwnProperty.call(values, field)) {
@@ -150,6 +150,14 @@ function createFormikConfig<T extends object, R = any>(
             helpers.setFieldError(fields[0], requestError.message);
           }
         }
+      }
+      if (_options.onError) {
+        _options.onError(
+          requestError,
+          values,
+          'formik',
+          _options.method || 'POST'
+        );
       }
       throw error;
     }
