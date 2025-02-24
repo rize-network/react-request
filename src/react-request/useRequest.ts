@@ -280,7 +280,7 @@ export function useRequest<T extends object = any, R = any>(
             : e instanceof Error
               ? new RequestError(e.message)
               : new RequestError('Unknown error');
-        if (debug) console.error(service.name, reqError);
+        // if (debug) console.error(service.name, reqError);
         setError(reqError);
         setData(undefined);
         setProgress(0);
