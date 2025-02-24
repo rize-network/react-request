@@ -274,18 +274,13 @@ export function useRequest<T extends object = any, R = any>(
           }
         }
       } catch (e) {
-        const reqError =
-          e instanceof RequestError
-            ? e
-            : e instanceof Error
-              ? new RequestError(e.message)
-              : new RequestError('Unknown error');
         // if (debug) console.error(service.name, reqError);
-        setError(reqError);
+        setError(e as RequestError);
         setData(undefined);
         setProgress(0);
-        if (onError) onError(reqError, requestParams, service.name, method);
-        throw reqError;
+        if (onError)
+          onError(e as RequestError, requestParams, service.name, method);
+        throw e;
       } finally {
         setLoading(false);
         setLoader(false);
