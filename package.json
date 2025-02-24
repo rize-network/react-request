@@ -1,26 +1,31 @@
 {
-  "version": "0.0.72",
-  "description": "React Request",
+  "version": "0.0.74",
+  "name": "@app-studio/react-request",
+  "author": "Steedmonteiro <steed@rize.network>",
+  "description": "Request Hooks to fetch data in React",
   "repository": "git@github.com:rize-network/react-request.git",
   "license": "MIT",
   "bugs": "https://github.com/rize-network/react-request/issues",
   "main": "dist/index.js",
-  "typings": "dist/index.d.ts",
+  "module": "dist/react-request.esm.js",
+  "unpkg": "dist/react-request.umd.production.min.js",
+  "typings": "dist/react-request/index.d.ts",
   "keywords": [
     "react",
     "typescript",
-    "element"
+    "app",
+    "request"
   ],
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
+    "start": "react-scripts start",
+    "build:web": "react-scripts build",
+    "build": "tsdx build --format cjs,esm,umd --entry ./src/react-request/index.tsx --tsconfig tsconfig.build.json",
     "test": "tsdx test --passWithNoTests",
     "lint": "npm run eslint && npm run prettier",
     "lint:fix": "npm run eslint:fix && npm run prettier:fix",
@@ -32,63 +37,16 @@
     "prettier": "prettier --check ./src",
     "prepare": "husky install",
     "prepublishOnly": "npm run build",
-    "release": "release-it",
     "size": "size-limit",
     "analyze": "size-limit --why",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "upgrade": "ncu -u"
-  },
-  "peerDependencies": {
-    "react": ">= 16"
+    "upgrade": "ncu -u",
+    "prerelease": "npm run build",
+    "release": "release-it"
   },
   "husky": {
     "hooks": {
       "pre-commit": "npm run lint:fix"
     }
-  },
-  "name": "@app-studio/react-request",
-  "author": "Steedmonteiro <steed@rize.network>",
-  "module": "dist/react-request.esm.js",
-  "devDependencies": {
-    "@babel/core": "^7.16.10",
-    "@commitlint/cli": "^16.0.3",
-    "@commitlint/config-conventional": "^16.0.0",
-    "@size-limit/preset-small-lib": "^7.0.5",
-    "@storybook/addon-essentials": "^6.4.13",
-    "@storybook/addon-info": "^5.3.21",
-    "@storybook/addon-links": "^6.4.13",
-    "@storybook/addons": "^6.4.13",
-    "@storybook/react": "^6.4.13",
-    "@types/memory-cache": "^0.2.2",
-    "@types/react": "^17.0.38",
-    "@types/react-dom": "^17.0.11",
-    "@types/styled-components": "^5.1.20",
-    "@typescript-eslint/eslint-plugin": "^5.9.0",
-    "@typescript-eslint/parser": "^5.9.0",
-    "babel-loader": "^8.2.3",
-    "chalk": "^5.0.0",
-    "commitlint": "^16.0.1",
-    "cross-env": "^7.0.3",
-    "eslint": "^8.6.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-formatter-codeframe": "^7.32.1",
-    "eslint-import-resolver-alias": "^1.1.2",
-    "eslint-plugin-eslint-comments": "^3.2.0",
-    "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-jest": "^25.3.4",
-    "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^7.0.4",
-    "lint-staged": "^12.2.1",
-    "prettier": "^2.5.1",
-    "react": "^17.0.2",
-    "react-element-to-jsx-string": "^14.3.4",
-    "release-it": "^16.2.1",
-    "size-limit": "^7.0.5",
-    "styled-components": "^5.3.3",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.6.2",
-    "typescript": "^4.5.4"
   },
   "lint-staged": {
     "./src/**/*.{md,json}": [
@@ -102,15 +60,86 @@
   "size-limit": [
     {
       "path": "dist/react-request.cjs.production.min.js",
-      "limit": "10 KB"
+      "limit": "15 KB"
     },
     {
       "path": "dist/react-request.esm.js",
-      "limit": "10 KB"
+      "limit": "15 KB"
+    },
+    {
+      "path": "dist/react-request.umd.production.min.js",
+      "limit": "15 KB"
     }
   ],
   "dependencies": {
     "memory-cache": "^0.2.0",
     "qs": "^6.10.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
+    "@babel/preset-react": "^7.25.9",
+    "@babel/preset-typescript": "^7.26.0",
+    "@commitlint/cli": "^19.2.0",
+    "@commitlint/config-conventional": "^19.1.0",
+    "@size-limit/preset-small-lib": "^10.0.2",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/memory-cache": "^0.2.6",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@types/react-test-renderer": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.7",
+    "@typescript-eslint/parser": "^5.59.7",
+    "babel-jest": "^29.5.0",
+    "babel-loader": "^9.1.2",
+    "babel-plugin-named-exports-order": "^0.0.2",
+    "babel-plugin-react-require": "^4.0.0",
+    "chalk": "^5.3.0",
+    "cheerio": "^1.0.0-rc.12",
+    "commitlint": "^18.2.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.41.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "husky": "^8.0.3",
+    "jscodeshift": "^0.15.1",
+    "lint-staged": "^15.0.2",
+    "prettier": "^3.0.3",
+    "react": "^18.0.2",
+    "react-dom": "^18.0.2",
+    "react-router-dom": "^6.11.1",
+    "react-scripts": "^5.0.1",
+    "release-it": "^16.2.1",
+    "size-limit": "^10.0.2",
+    "ts-loader": "^9.4.2",
+    "tsc-alias": "^1.8.8",
+    "tsdx": "^0.14.1",
+    "tslib": "^2.6.2",
+    "web-vitals": "^2.1.4",
+    "webpack": "^5.89.0",
+    "webpack-bundle-analyzer": "^4.8.0",
+    "webpack-cli": "^5.1.3",
+    "yup": "^1.5.0"
+  },
+  "peerDependencies": {
+    "formik": ">=2",
+    "react": ">=18"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

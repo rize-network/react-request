@@ -3,20 +3,23 @@ import './App.css';
 import { RequestExemple } from './Exemple';
 import { RequestExempleCached } from './ExempleCached';
 import { RequestProvider } from './react-request';
-import { useState } from 'react';
+import { UserForm } from './UserForm';
+import { SimpleForm } from './SimpleForm';
 
 const App = () => {
   return (
     <RequestProvider>
-       
-      <br/>
+      <br />
       <RequestExemple />
-      <br/>
+      <br />
+      <RequestExempleCached />
 
-<RequestExempleCached />
+      <br />
+      <UserForm />
+      <br />
+      <SimpleForm />
     </RequestProvider>
   );
 };
-
 
 export default App;

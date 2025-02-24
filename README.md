@@ -1,19 +1,19 @@
 
 # React Request
 
-[![npm version](https://img.shields.io/npm/v/react-request.svg?style=for-the-badge)](https://www.npmjs.com/package/@app-studio/react-request)
-[![npm](https://img.shields.io/npm/dt/@app-studio/react-request.svg?style=for-the-badge)](https://www.npmjs.com/package/@app-studio/react-request)
+[![npm version](https://img.shields.io/npm/v/react-request.svg?style=for-the-badge)](https://www.npmjs.com/package/@react-request/react-request)
+[![npm](https://img.shields.io/npm/dt/@react-request/react-request.svg?style=for-the-badge)](https://www.npmjs.com/package/@react-request/react-request)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg?style=for-the-badge)](https://github.com/prettier/prettier)
 
 
-[npm-image]: http://img.shields.io/npm/v/app-studio/react-request.svg?style=flat-square
-[npm-url]: http://npmjs.org/package/app-studio/react-request
+[npm-image]: http://img.shields.io/npm/v/react-request/react-request.svg?style=flat-square
+[npm-url]: http://npmjs.org/package/react-request/react-request
 [github-action-image]: https://github.com/rize-network/react-request/workflows/%E2%9C%85%20test/badge.svg
 [github-action-url]: https://github.com/rize-network/react-request/actions?query=workflow%3A%22%E2%9C%85+test%22
 
-[download-image]: https://img.shields.io/npm/dm/app-studio/react-request.svg?style=flat-square
-[download-url]: https://npmjs.org/package/app-studio/react-request
+[download-image]: https://img.shields.io/npm/dm/react-request/react-request.svg?style=flat-square
+[download-url]: https://npmjs.org/package/react-request/react-request
 
 [help-wanted-image]: https://flat.badgen.net/github/label-issues/rize-network/react-request/help%20wanted/open
 [help-wanted-url]: https://github.com/rize-network/react-request/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22
