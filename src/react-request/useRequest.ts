@@ -151,14 +151,7 @@ function createFormikConfig<T extends object, R = any>(
           }
         }
       }
-      if (_options.onError) {
-        _options.onError(
-          requestError,
-          values,
-          'formik',
-          _options.method || 'POST'
-        );
-      }
+
       throw error;
     }
   };
