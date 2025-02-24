@@ -169,16 +169,17 @@ export function useRequest<T extends object = any, R = any>(
   const [error, setError] = useState<RequestError>();
 
   const {
-    onSuccess = provider.defaults.onSuccess,
-    onError = provider.defaults.onError,
-    onFetch = provider.defaults.onFetch,
-    onProgress = provider.defaults.onProgress,
-    onOffline = provider.defaults.onOffline,
-    onOnline = provider.defaults.onOnline,
-    onAppStatusChange = provider.defaults.onAppStatusChange,
-    onRetry = provider.defaults.onRetry,
+    onSuccess = provider?.defaults?.onSuccess,
+    onError = provider?.defaults?.onError,
+    onFetch = provider?.defaults?.onFetch,
+    onProgress = provider?.defaults?.onProgress,
+    onOffline = provider?.defaults?.onOffline,
+    onOnline = provider?.defaults?.onOnline,
+    onAppStatusChange = provider?.defaults?.onAppStatusChange,
+    onRetry = provider?.defaults?.onRetry,
     retryDelay = provider.retryDelay,
-    cached = provider.cacheMethod.includes(options.method || 'GET')
+    cached = provider.cacheMethod &&
+    provider.cacheMethod.includes(options.method || 'GET')
       ? provider.cached
       : false,
     debug = provider.debug,

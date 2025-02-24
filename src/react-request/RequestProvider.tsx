@@ -4,7 +4,7 @@ import cache from 'memory-cache';
 import { HttpMethod } from './useRequest';
 
 type RequestConfig = {
-  defaults: {
+  defaults?: {
     onSuccess?: (
       data: any,
       params: any,
@@ -56,7 +56,7 @@ type RequestConfig = {
       setData: Function
     ) => void;
   };
-  every: {
+  every?: {
     onSuccess?: (
       data: any,
       params: any,
@@ -121,7 +121,7 @@ type RequestConfig = {
   debug?: boolean;
   connectionStatus?: boolean;
   appStatus?: string;
-  cacheMethod: HttpMethod[];
+  cacheMethod?: HttpMethod[];
 };
 export const RequestContext = createContext<RequestConfig>({
   defaults: {
