@@ -166,7 +166,7 @@ export const getCacheKey = (service: Function, params?: any): string => {
 };
 
 export function useRequest<T extends object = any, R = any>(
-  service: (params?: T) => Promise<R>,
+  service: any,
   options: UseRequestOption = {}
 ): UseRequestResult<T, R> {
   const provider = useRequestContext();
@@ -201,7 +201,7 @@ export function useRequest<T extends object = any, R = any>(
   } = options;
 
   const run = useCallback(
-    debounce(async (requestParams?: T) => {
+    debounce(async (...requestParams: any) => {
       try {
         setDirty(true);
         setProgress(0);
@@ -226,7 +226,7 @@ export function useRequest<T extends object = any, R = any>(
           if (debug) console.log('call ' + service.name, requestParams);
           if (onFetch) onFetch(requestParams, service.name, method);
 
-          const response = await service(requestParams);
+          const response = await service(...requestParams);
           setError(undefined);
           setProgress(100);
 
