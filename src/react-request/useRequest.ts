@@ -187,8 +187,8 @@ export function useRequest<T extends object = any, R = any>(
           if (debug) console.log('call ' + service.name, requestParams);
           if (onFetch) onFetch(requestParams, service.name, method);
 
-          const response = await service(...requestParams);
           setError(undefined);
+          const response = await service(...requestParams);
           setProgress(100);
 
           if (debug) console.log('response ' + service.name, response);
@@ -198,7 +198,7 @@ export function useRequest<T extends object = any, R = any>(
             response &&
             typeof response === 'object' &&
             response !== null &&
-            'retry' in response
+            response['retry'] === true
           ) {
             setRetry(true);
             if (onRetry) {
@@ -211,9 +211,9 @@ export function useRequest<T extends object = any, R = any>(
                 setLoader,
                 setData
               );
-            } else {
-              setTimeout(() => run(requestParams), retryDelay);
             }
+
+            setTimeout(() => run(...requestParams), retryDelay);
           } else {
             const finalData =
               successKey && response ? (response as any)[successKey] : response;
