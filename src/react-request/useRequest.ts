@@ -69,6 +69,12 @@ export type UseRequestOption = {
   retryDelay?: number;
   successKey?: string;
   cacheMethod?: HttpMethod[];
+  // Added new option for custom error handling
+  formErrorHandler?: (
+    error: RequestError,
+    values: any,
+    helpers: FormikHelpers<any>
+  ) => void;
 };
 
 export type UseRequestProperties = {
@@ -115,54 +121,6 @@ export interface UseRequestResult<T = any, R = any> {
   formikConfig: Omit<FormikConfig<T>, 'initialValues' | 'validationSchema'>;
 }
 
-function createFormikConfig<T extends object, R = any>(
-  run: (params?: T) => Promise<R>,
-  _options: UseRequestOption
-): Omit<FormikConfig<T>, 'initialValues' | 'validationSchema'> {
-  const handleSubmit = async (values: T, helpers: FormikHelpers<T>) => {
-    try {
-      const response = await run(values);
-      return response;
-    } catch (error) {
-      const requestError = error as RequestError;
-      if (helpers.setFieldError) {
-        if (requestError.errors) {
-          Object.entries(requestError.errors).forEach(([field, message]) => {
-            if (Object.prototype.hasOwnProperty.call(values, field)) {
-              helpers.setFieldError(
-                field,
-                Array.isArray(message) ? message[0] : message
-              );
-            }
-          });
-        } else if (requestError.message) {
-          const fields = Object.keys(values);
-          let errorSet = false;
-          fields.forEach((field) => {
-            if (
-              requestError.message.toLowerCase().includes(field.toLowerCase())
-            ) {
-              helpers.setFieldError(field, requestError.message);
-              errorSet = true;
-            }
-          });
-          if (!errorSet && fields.length > 0) {
-            helpers.setFieldError(fields[0], requestError.message);
-          }
-        }
-      }
-
-      throw error;
-    }
-  };
-
-  return {
-    onSubmit: handleSubmit,
-    validateOnChange: true,
-    validateOnBlur: true,
-  };
-}
-
 export const getCacheKey = (service: Function, params?: any): string => {
   return `${service.name}-${JSON.stringify(params ?? {})}`;
 };
@@ -174,6 +132,7 @@ export function useRequest<T extends object = any, R = any>(
   const provider = useRequestContext();
   const [data, setData] = useState<R>();
   const [params, setParams] = useState<T>();
+  const [helpers, setHelpers] = useState<FormikHelpers<T>>();
   const [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -274,13 +233,62 @@ export function useRequest<T extends object = any, R = any>(
           }
         }
       } catch (e) {
-        // if (debug) console.error(service.name, reqError);
-        setError(e as RequestError);
+        const reqError =
+          e instanceof RequestError
+            ? e
+            : e instanceof Error
+              ? new RequestError(e.message)
+              : new RequestError('Unknown error');
+        if (debug) console.error(service.name, reqError);
+        setError(reqError);
         setData(undefined);
         setProgress(0);
-        if (onError)
-          onError(e as RequestError, requestParams, service.name, method);
-        throw e;
+        if (onError) onError(reqError, requestParams, service.name, method);
+
+        // Default error handling
+        if (helpers) {
+          if (helpers.setFieldError && reqError) {
+            // Handle error mapping to specific form fields
+            if (reqError.errors) {
+              Object.entries(reqError.errors).forEach(([field, message]) => {
+                if (Object.prototype.hasOwnProperty.call(params, field)) {
+                  helpers.setFieldError(
+                    field,
+                    Array.isArray(message) ? message[0] : message
+                  );
+                }
+              });
+            } else if (reqError.message) {
+              // Try to match error message to field names
+              const fields = Object.keys(requestParams);
+              let errorSet = false;
+
+              fields.forEach((field) => {
+                if (
+                  reqError.message.toLowerCase().includes(field.toLowerCase())
+                ) {
+                  helpers.setFieldError(field, reqError.message);
+                  errorSet = true;
+                }
+              });
+
+              // If no specific field error was set, set it on the first field or use setStatus
+              if (!errorSet) {
+                if (fields.length > 0) {
+                  helpers.setFieldError(fields[0], reqError.message);
+                } else {
+                  // If no fields available, set form-level status
+                  helpers.setStatus({ error: reqError.message });
+                }
+              }
+            }
+          }
+
+          // Always set form error status for access in the UI
+          helpers.setStatus({ error: reqError.message });
+        }
+
+        // Use custom error handler if provided
       } finally {
         setLoading(false);
         setLoader(false);
@@ -347,7 +355,24 @@ export function useRequest<T extends object = any, R = any>(
     setData(undefined);
   }, [cached, params, provider, service]);
 
-  const formikConfig = createFormikConfig(run, options);
+  const handleSubmit = async (values: T, helps: FormikHelpers<T>) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        setHelpers(helps);
+        const response = run(values);
+        resolve(response);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  };
+
+  // Pass the complete options to createFormikConfig
+  const formikConfig = {
+    onSubmit: handleSubmit,
+    validateOnChange: true,
+    validateOnBlur: true,
+  };
 
   return {
     data,
