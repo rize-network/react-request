@@ -102,8 +102,8 @@ export class RequestError extends Error {
     errors?: Record<string, string | string[]>
   ) {
     super(message);
-    this.errors = errors;
     this.status = status;
+    this.errors = errors;
     this.name = 'RequestError';
   }
 }
@@ -236,7 +236,7 @@ export function useRequest<T extends object = any, R = any>(
         const err = e as any;
         const reqError =
           err && err.body && err.body.errors
-            ? new RequestError(err.message, err.body.errors, err.status)
+            ? new RequestError(err.message, err.status, err.body.errors)
             : err && err.message
               ? new RequestError(err.message, err.status)
               : new RequestError('Unknown error');
