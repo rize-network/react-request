@@ -251,11 +251,12 @@ export function useRequest<T extends object = any, R = any>(
           if (helpers.setFieldError && reqError) {
             // Handle error mapping to specific form fields
             if (reqError.errors) {
-              Object.entries(reqError.errors).forEach(([field, message]) => {
-                if (Object.prototype.hasOwnProperty.call(params, field)) {
+              Object.keys(reqError.errors).map((field) => {
+                if (reqError.errors && reqError.errors[field] !== undefined) {
+                  const errorField = reqError.errors[field] as any;
                   helpers.setFieldError(
                     field,
-                    Array.isArray(message) ? message[0] : message
+                    typeof errorField === 'string' ? errorField : errorField[0]
                   );
                 }
               });
