@@ -98,8 +98,8 @@ export class RequestError extends Error {
 
   constructor(
     message: string,
-    errors?: Record<string, string | string[]>,
-    status?: number
+    status?: number,
+    errors?: Record<string, string | string[]>
   ) {
     super(message);
     this.errors = errors;
@@ -233,11 +233,12 @@ export function useRequest<T extends object = any, R = any>(
           }
         }
       } catch (e) {
+        const err = e as any;
         const reqError =
-          e instanceof RequestError
-            ? e
-            : e instanceof Error
-              ? new RequestError(e.message)
+          err && err.body && err.body.errors
+            ? new RequestError(err.message, err.body.errors, err.status)
+            : err && err.message
+              ? new RequestError(err.message, err.status)
               : new RequestError('Unknown error');
         if (debug) console.error(service.name, reqError);
         setError(reqError);
