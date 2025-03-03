@@ -180,7 +180,6 @@ export function useRequest<T extends object = any, R = any>(
               if (debug) console.log('read cache', key, cachedData);
               setData(cachedData);
               setLoading(false);
-              return cachedData;
             }
           }
 
