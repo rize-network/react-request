@@ -180,6 +180,8 @@ export function useRequest<T extends object = any, R = any>(
               if (debug) console.log('read cache', key, cachedData);
               setData(cachedData);
               setLoading(false);
+              if (onSuccess)
+                onSuccess(cachedData, requestParams, service.name, method);
             }
           }
 
@@ -227,8 +229,6 @@ export function useRequest<T extends object = any, R = any>(
               provider.setCache(key, finalData);
               if (debug) console.log('write cache', key, finalData);
             }
-
-            return finalData;
           }
         }
       } catch (e) {
