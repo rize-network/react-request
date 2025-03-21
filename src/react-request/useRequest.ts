@@ -238,7 +238,7 @@ export function useRequest<T extends object = any, R = any>(
             ? new RequestError(err.message, err.status, err.body.errors)
             : err && err.message
               ? new RequestError(err.message, err.status)
-              : new RequestError('Unknown error');
+              : new RequestError('Unknown error', err.status);
         if (debug) console.error(service.name, reqError);
         setError(reqError);
         setData(undefined);
