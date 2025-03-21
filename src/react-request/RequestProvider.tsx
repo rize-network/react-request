@@ -124,56 +124,8 @@ type RequestConfig = {
   cacheMethod?: HttpMethod[];
 };
 export const RequestContext = createContext<RequestConfig>({
-  defaults: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onSuccess: (
-      _data: any,
-      _params: any,
-      _name: string,
-      _method: HttpMethod
-    ) => {
-      // console.log(data);
-      // console.log(params);
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onError: (
-      _error: Error,
-      _params: any,
-      _name: string,
-      _method: HttpMethod
-    ) => {
-      // console.error(error);
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onFetch: (_params: any, _name: string, _method: HttpMethod) => {
-      // console.log(params);
-    },
-  },
-  every: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onSuccess: (
-      _data: any,
-      _params: any,
-      _name: string,
-      _method: HttpMethod
-    ) => {
-      // console.log(data);
-      // console.log(params);
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onError: (
-      _error: Error,
-      _params: any,
-      _name: string,
-      _method: HttpMethod
-    ) => {
-      // console.error(error);
-    },
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onFetch: (_params: any, _name: string, _method: HttpMethod) => {
-      // console.log(params);
-    },
-  },
+  defaults: {},
+  every: {},
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   ttl: 10 * 60 * 1000,
   retryDelay: 10 * 1000,
