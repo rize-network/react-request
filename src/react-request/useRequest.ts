@@ -182,6 +182,14 @@ export function useRequest<T extends object = any, R = any>(
               setLoading(false);
               if (onSuccess)
                 onSuccess(cachedData, requestParams, service.name, method);
+
+              if (provider.every?.onSuccess)
+                provider.every?.onSuccess(
+                  cachedData,
+                  requestParams,
+                  service.name,
+                  method
+                );
             }
           }
 
@@ -224,6 +232,13 @@ export function useRequest<T extends object = any, R = any>(
             if (onSuccess)
               onSuccess(finalData, requestParams, service.name, method);
 
+            if (provider.every?.onSuccess)
+              provider.every?.onSuccess(
+                finalData,
+                requestParams,
+                service.name,
+                method
+              );
             if (cached && provider.setCache) {
               const key = getCacheKey(service, requestParams);
               provider.setCache(key, finalData);
@@ -244,7 +259,13 @@ export function useRequest<T extends object = any, R = any>(
         setData(undefined);
         setProgress(0);
         if (onError) onError(reqError, requestParams, service.name, method);
-
+        if (provider.every?.onError)
+          provider.every?.onError(
+            reqError,
+            requestParams,
+            service.name,
+            method
+          );
         // Default error handling
         if (helpers) {
           if (helpers.setFieldError && reqError) {
