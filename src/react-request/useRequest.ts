@@ -248,13 +248,13 @@ export function useRequest<T extends object = any, R = any>(
         }
       } catch (e) {
         const err = e as any;
+        const message = err?.body?.message || err.message;
         const reqError =
           err && err.body && err.body.errors
-            ? new RequestError(err.message, err.status, err.body.errors)
-            : err && err.message
-              ? new RequestError(err.message, err.status)
+            ? new RequestError(message, err.status, err.body.errors)
+            : err && message
+              ? new RequestError(message, err.status)
               : new RequestError('Unknown error', err.status);
-        if (debug) console.error(service.name, reqError);
         setError(reqError);
         setData(undefined);
         setProgress(0);
