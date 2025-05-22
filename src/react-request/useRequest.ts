@@ -119,6 +119,8 @@ export interface UseRequestResult<T = any, R = any> {
   method: HttpMethod;
   progress: number;
   formikConfig: Omit<FormikConfig<T>, 'initialValues' | 'validationSchema'>;
+  refresh: () => Promise<R | void>;
+  setRequestData: (data: T) => void;
 }
 
 export const getCacheKey = (service: Function, params?: any): string => {
@@ -132,6 +134,8 @@ export function useRequest<T extends object = any, R = any>(
   const provider = useRequestContext();
   const [data, setData] = useState<R>();
   const [params, setParams] = useState<T>();
+  const [lastRequestParams, setLastRequestParams] = useState<T>();
+  const [requestPayload, setRequestPayload] = useState<T | undefined>();
   const [helpers, setHelpers] = useState<FormikHelpers<T>>();
   const [dirty, setDirty] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -162,42 +166,60 @@ export function useRequest<T extends object = any, R = any>(
   } = options;
 
   const run = useCallback(
-    debounce(async (...requestParams: any) => {
+    debounce(async (runTimeParams?: T) => {
+      let actualParams: T | undefined = undefined;
+
+      if (requestPayload !== undefined) {
+        actualParams = requestPayload;
+      } else {
+        actualParams = runTimeParams;
+      }
+
+      // It's possible actualParams is still undefined if neither requestPayload nor runTimeParams are provided.
+      // The service function needs to handle this possibility if params are optional.
+
       try {
         setDirty(true);
         setProgress(0);
-        if (onProgress) onProgress(0, requestParams, service.name, method);
+        
+        // Store the actual parameters being used for the request
+        if (actualParams !== undefined) {
+          setLastRequestParams(actualParams);
+          setParams(actualParams);
+        }
+
+
+        if (onProgress) onProgress(0, actualParams, service.name, method);
 
         if (!loading) {
           setLoading(true);
           setLoader(true);
-          setParams(requestParams);
 
-          if (cached && !data && provider.getCache) {
-            const key = getCacheKey(service, requestParams);
+          if (cached && !data && provider.getCache && actualParams !== undefined) {
+            const key = getCacheKey(service, actualParams);
             const cachedData = provider.getCache(key);
             if (cachedData) {
               if (debug) console.log('read cache', key, cachedData);
               setData(cachedData);
               setLoading(false);
               if (onSuccess)
-                onSuccess(cachedData, requestParams, service.name, method);
+                onSuccess(cachedData, actualParams, service.name, method);
 
               if (provider.every?.onSuccess)
                 provider.every?.onSuccess(
                   cachedData,
-                  requestParams,
+                  actualParams,
                   service.name,
                   method
                 );
             }
           }
 
-          if (debug) console.log('call ' + service.name, requestParams);
-          if (onFetch) onFetch(requestParams, service.name, method);
+          if (debug) console.log('call ' + service.name, actualParams);
+          if (onFetch) onFetch(actualParams, service.name, method);
 
           setError(undefined);
-          const response = await service(...requestParams);
+          const response = await service(actualParams);
           setProgress(100);
 
           if (debug) console.log('response ' + service.name, response);
@@ -213,7 +235,7 @@ export function useRequest<T extends object = any, R = any>(
             if (onRetry) {
               onRetry(
                 run,
-                requestParams,
+                actualParams,
                 service.name,
                 method,
                 setLoading,
@@ -222,7 +244,7 @@ export function useRequest<T extends object = any, R = any>(
               );
             }
 
-            setTimeout(() => run(...requestParams), retryDelay);
+            setTimeout(() => run(actualParams), retryDelay);
           } else {
             const finalData =
               successKey && response ? (response as any)[successKey] : response;
@@ -230,17 +252,17 @@ export function useRequest<T extends object = any, R = any>(
             setRetry(false);
 
             if (onSuccess)
-              onSuccess(finalData, requestParams, service.name, method);
+              onSuccess(finalData, actualParams, service.name, method);
 
             if (provider.every?.onSuccess)
               provider.every?.onSuccess(
                 finalData,
-                requestParams,
+                actualParams,
                 service.name,
                 method
               );
-            if (cached && provider.setCache) {
-              const key = getCacheKey(service, requestParams);
+            if (cached && provider.setCache && actualParams !== undefined) {
+              const key = getCacheKey(service, actualParams);
               provider.setCache(key, finalData);
               if (debug) console.log('write cache', key, finalData);
             }
@@ -258,11 +280,11 @@ export function useRequest<T extends object = any, R = any>(
         setError(reqError);
         setData(undefined);
         setProgress(0);
-        if (onError) onError(reqError, requestParams, service.name, method);
+        if (onError) onError(reqError, actualParams, service.name, method);
         if (provider.every?.onError)
           provider.every?.onError(
             reqError,
-            requestParams,
+            actualParams,
             service.name,
             method
           );
@@ -282,7 +304,7 @@ export function useRequest<T extends object = any, R = any>(
               });
             } else if (reqError.message) {
               // Try to match error message to field names
-              const fields = Object.keys(requestParams);
+              const fields = actualParams ? Object.keys(actualParams) : [];
               let errorSet = false;
 
               fields.forEach((field) => {
@@ -314,6 +336,10 @@ export function useRequest<T extends object = any, R = any>(
       } finally {
         setLoading(false);
         setLoader(false);
+        // Reset requestPayload after the run execution (success or failure)
+        if (requestPayload !== undefined) {
+          setRequestPayload(undefined);
+        }
       }
     }, 300) as unknown as (params?: T) => Promise<R>,
     [
@@ -332,6 +358,7 @@ export function useRequest<T extends object = any, R = any>(
       retryDelay,
       debug,
       successKey,
+      requestPayload, // Added requestPayload to dependency array
     ]
   );
 
@@ -396,6 +423,25 @@ export function useRequest<T extends object = any, R = any>(
     validateOnBlur: true,
   };
 
+  const refresh = useCallback(async () => {
+    if (lastRequestParams !== undefined) {
+      // Assuming run expects parameters as a single object 'T' if not using spread
+      return run(lastRequestParams);
+    } else {
+      if (debug) {
+        console.warn(
+          'useRequest: refresh called without prior request to store parameters.'
+        );
+      }
+      // Return a resolved promise or handle as appropriate for your app's logic
+      return Promise.resolve();
+    }
+  }, [run, lastRequestParams, debug]);
+
+  const setRequestData = useCallback((data: T) => {
+    setRequestPayload(data);
+  }, []);
+
   return {
     data,
     run,
@@ -407,5 +453,7 @@ export function useRequest<T extends object = any, R = any>(
     method,
     progress,
     formikConfig,
+    refresh,
+    setRequestData,
   };
 }
