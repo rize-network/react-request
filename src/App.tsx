@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import { RequestExemple } from './Exemple';
 import { RequestExempleCached } from './ExempleCached';
 import { RequestProvider } from './react-request';

@@ -3,7 +3,10 @@ import { useEffect } from 'react';
 import { useRequest, request } from './react-request';
 
 const exempleRequest = () =>
-  request({ url: 'https://reqres.in/api/products/3' });
+  request({
+    url: 'https://reqres.in/api/products/3',
+    headers: { 'x-api-key': 'reqres-free-v1' },
+  });
 
 export const RequestExempleCached = () => {
   const request = useRequest(exempleRequest, { cached: true });

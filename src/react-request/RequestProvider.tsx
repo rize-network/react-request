@@ -28,23 +28,20 @@ type RequestConfig = {
       run: Function,
       params: any,
       name: string,
-      method: HttpMethod,
-      setData: Function
+      method: HttpMethod
     ) => void;
     onOffline?: (
       run: Function,
       params: any,
       name: string,
-      method: HttpMethod,
-      setData: Function
+      method: HttpMethod
     ) => void;
     onAppStatusChange?: (
       status: string,
       run: Function,
       params: any,
       name: string,
-      method: HttpMethod,
-      setData: Function
+      method: HttpMethod
     ) => void;
     onRetry?: (
       run: Function,
@@ -52,8 +49,7 @@ type RequestConfig = {
       name: string,
       method: HttpMethod,
       setLoading: Function,
-      setLoader: Function,
-      setData: Function
+      setLoader: Function
     ) => void;
   };
   every?: {
@@ -80,8 +76,7 @@ type RequestConfig = {
       run: Function,
       params: any,
       name: string,
-      method: HttpMethod,
-      setData: Function
+      method: HttpMethod
     ) => void;
     onRetry?: (
       run: Function,
@@ -89,23 +84,20 @@ type RequestConfig = {
       name: string,
       method: HttpMethod,
       setLoading: Function,
-      setLoader: Function,
-      setData: Function
+      setLoader: Function
     ) => void;
     onOffline?: (
       run: Function,
       params: any,
       name: string,
-      method: HttpMethod,
-      setData: Function
+      method: HttpMethod
     ) => void;
     onAppStatusChange?: (
       status: string,
       run: Function,
       params: any,
       name: string,
-      method: HttpMethod,
-      setData: Function
+      method: HttpMethod
     ) => void;
   };
 

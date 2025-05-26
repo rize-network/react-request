@@ -10,12 +10,16 @@ const userApi = {
       url: 'https://reqres.in/api/users',
       method: 'POST',
       params: data,
+
+      headers: { 'x-api-key': 'reqres-free-v1' },
     }),
 
   get: (id: any) =>
     request({
       url: `https://reqres.in/api/users/${id}`,
       method: 'GET',
+
+      headers: { 'x-api-key': 'reqres-free-v1' },
     }),
 };
 
@@ -40,6 +44,7 @@ const initialValues: FormValues = {
 export const UserForm = () => {
   const { formikConfig, loading, error, data } = useRequest(userApi.create, {
     method: 'POST',
+
     onSuccess: (response: any) => {
       console.log('User created:', response);
       // You could redirect or show success message here

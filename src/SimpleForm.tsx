@@ -7,6 +7,8 @@ const exampleRequest = (data: any) =>
     url: 'https://reqres.in/api/users',
     method: 'POST',
     params: data,
+
+    headers: { 'x-api-key': 'reqres-free-v1' },
   });
 
 export const SimpleForm = () => {
