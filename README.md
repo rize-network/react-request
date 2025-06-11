@@ -29,45 +29,114 @@
 
 ## ✨ Features
 
-<!-- - Transform your data request in hooks.
-- 🛡 Written in TypeScript with predictable static types.
--->
+- 🎣 **React Hooks** - Modern React hooks API for data fetching
+- 🚀 **TypeScript Support** - Full TypeScript support with type safety
+- 💾 **Built-in Caching** - Automatic request caching with configurable TTL
+- 🔄 **Loading States** - Automatic loading and progress tracking
+- ❌ **Error Handling** - Comprehensive error handling with retry logic
+- 📝 **Form Integration** - Seamless Formik integration for forms
+- 🌐 **Network Awareness** - Online/offline status handling
+- 🔧 **Configurable** - Highly customizable with global and per-request options
+- 🎯 **Debouncing** - Built-in request debouncing (300ms)
+- 📊 **Progress Tracking** - Upload/download progress monitoring
 
 
 
 ## 📦 Install
 
 ```bash
-npm install react-request --save
+npm install @app-studio/react-request
 ```
 
 ## 🔨 Usage
 
+### Basic Example
+
 ```jsx
-import {useRequest, UseRequestOption} from "react-request";
+import React from 'react';
+import { useRequest, request } from '@app-studio/react-request';
 
-export const postDataRequest = (
-  requestBody?: DataBody,
-): Promise<Data> => {
-  return  await fetch({
-    method: 'POST',
-    path: `/api/data`,
-    body: requestBody,
+// Define your API function
+const fetchUser = (id) =>
+  request({
+    url: `https://api.example.com/users/${id}`,
+    method: 'GET'
   });
-};
 
-export const usePostDataService = (
-  options: UseRequestOption = {},
-): {
-  run: (requestBody?: DataBody) => void;
-  data: any;
-  loading: boolean;
-  error?: Error;
-  params?: any;
-} => {
-  return useRequest(postDataRequest, options);
-};
+// Use in component
+function UserProfile({ userId }) {
+  const { data, loading, error, run } = useRequest(fetchUser);
 
+  React.useEffect(() => {
+    run(userId);
+  }, [userId]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!data) return null;
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.email}</p>
+    </div>
+  );
+}
+```
+
+### With Provider (Recommended)
+
+```jsx
+import React from 'react';
+import { RequestProvider } from '@app-studio/react-request';
+
+function App() {
+  return (
+    <RequestProvider
+      cached={true}
+      debug={true}
+      defaults={{
+        onError: (error) => console.error('Request failed:', error),
+        onSuccess: (data) => console.log('Request succeeded:', data)
+      }}
+    >
+      <UserProfile userId="123" />
+    </RequestProvider>
+  );
+}
+```
+
+### Form Integration
+
+```jsx
+import { Formik, Form, Field } from 'formik';
+
+function CreateUserForm() {
+  const { formikConfig, loading, error } = useRequest(
+    (userData) => request({
+      url: '/api/users',
+      method: 'POST',
+      params: userData
+    }),
+    {
+      method: 'POST',
+      onSuccess: (data) => alert('User created successfully!')
+    }
+  );
+
+  return (
+    <Formik initialValues={{ name: '', email: '' }} {...formikConfig}>
+      <Form>
+        <Field name="name" placeholder="Name" />
+        <Field name="email" placeholder="Email" />
+        <button type="submit" disabled={loading}>
+          {loading ? 'Creating...' : 'Create User'}
+        </button>
+        {error && <div>Error: {error.message}</div>}
+      </Form>
+    </Formik>
+  );
+}
 ```
 
 ### TypeScript
@@ -75,23 +144,47 @@ export const usePostDataService = (
 `react-request` is written in TypeScript with complete definitions.
 
 
+## 📚 Documentation
+
+- 📖 [Full Documentation](DOCUMENTATION.md) - Comprehensive guide with examples
+- ⚡ [Quick Reference](QUICK_REFERENCE.md) - Quick reference for common patterns
+- 🔗 [API Reference](DOCUMENTATION.md#api-reference) - Detailed API documentation
+- 💡 [Examples](DOCUMENTATION.md#examples) - Real-world usage examples
+- 🛠️ [Best Practices](DOCUMENTATION.md#best-practices) - Recommended patterns
+
 ## 🔗 Links
 - [Change Log](CHANGELOG.md)
 - [Versioning Release Note](https://github.com/rize-network/react-request/wiki/)
-- [FAQ](https://ant.design/docs/react/faq)
-- [CodeSandbox Template](https://u.ant.design/codesandbox-repro) for bug reports
-- [Customize Theme](https://ant.design/docs/react/customize-theme)
-- [How to Apply for Being A Collaborator](https://github.com/rize-network/react-request/wiki/Collaborators#how-to-apply-for-being-a-collaborator)
+- [Issues](https://github.com/rize-network/react-request/issues) - Bug reports and feature requests
+- [Discussions](https://github.com/rize-network/react-request/discussions) - Community discussions
 
 
 
 ## 🤝 Contributing [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 
-Read our [contributing guide](https://ant.design/docs/react/contributing) and let's build a better rize-network together.
+We welcome all contributions! Here's how you can help:
 
-We welcome all contributions. Please read our [CONTRIBUTING.md](https://github.com/rize-network/react-request/blob/master/.github/CONTRIBUTING.md) first. You can submit any ideas as [pull requests](https://github.com/rize-network/react-request/pulls) or as [GitHub issues](https://github.com/rize-network/react-request/issues). If you'd like to improve code, check out the [Development Instructions](https://github.com/rize-network/react-request/wiki/Development) and have a good time! :)
+1. 🐛 **Report bugs** - [Create an issue](https://github.com/rize-network/react-request/issues)
+2. 💡 **Suggest features** - [Start a discussion](https://github.com/rize-network/react-request/discussions)
+3. 📝 **Improve docs** - Help us make the documentation better
+4. 🔧 **Submit PRs** - Fix bugs or add new features
 
-If you are a collaborator, please follow our [Pull Request principle](https://github.com/rize-network/react-request/wiki/PR-principle) to create a Pull Request with [collaborator template](https://github.com/rize-network/react-request/compare?expand=1&template=collaborator.md).
+### Development Setup
+
+```bash
+git clone https://github.com/rize-network/react-request.git
+cd react-request
+npm install
+npm start
+```
+
+### Running Tests
+
+```bash
+npm test
+```
+
+Please read our [contributing guide](DOCUMENTATION.md#contributing) for more details.
 
 [![Let's fund issues in this repository](https://issuehunt.io/static/embed/issuehunt-button-v1.svg)](https://issuehunt.io/o/rize-network)
 
