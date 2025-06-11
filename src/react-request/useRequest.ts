@@ -85,6 +85,7 @@ export type UseRequestProperties = {
   cached?: boolean;
   debug?: boolean;
   formikConfig: Omit<FormikConfig<any>, 'initialValues' | 'validationSchema'>;
+  setData: (data: any) => void;
 };
 
 export class RequestError extends Error {

@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2",
+  "version": "0.1.3",
   "name": "@app-studio/react-request",
   "author": "Steedmonteiro <steed@rize.network>",
   "description": "Request Hooks to fetch data in React",
