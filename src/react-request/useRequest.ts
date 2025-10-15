@@ -203,7 +203,12 @@ export function useRequest<T extends object = any, R = any>(
           if (onFetch) onFetch(requestParams, service.name, method);
 
           setError(undefined);
-          const response = await service(...requestParams); // Pass all arguments to service
+          const handleProgress = (progression: number) => {
+            setProgress(progression);
+            if (onProgress)
+              onProgress(progression, requestParams, service.name, method);
+          };
+          const response = await service(...requestParams, handleProgress); // Pass all arguments to service
           setProgress(100);
 
           if (debug) console.log('response ' + service.name, response);
